@@ -1,0 +1,124 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/schemas/extracted-form.schema.json",
+  "title": "ExtractedFormResult",
+  "oneOf": [
+    {
+      "type": "object",
+      "required": [
+        "status",
+        "url",
+        "ats",
+        "page_title",
+        "current_step",
+        "form_ready",
+        "submit_visible",
+        "submit_enabled",
+        "fields",
+        "warnings",
+        "extracted_at"
+      ],
+      "properties": {
+        "status": { "const": "success" },
+        "url": { "type": "string", "format": "uri" },
+        "ats": { "enum": ["greenhouse", "linkedin_easy_apply", "unknown"] },
+        "page_title": { "type": "string" },
+        "current_step": { "type": ["string", "null"] },
+        "form_ready": { "type": "boolean" },
+        "submit_visible": { "type": "boolean" },
+        "submit_enabled": { "type": "boolean" },
+        "fields": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "field_id",
+              "label",
+              "type",
+              "required",
+              "options",
+              "placeholder",
+              "help_text",
+              "section",
+              "current_value",
+              "selector_hint",
+              "visible",
+              "enabled",
+              "validation_text"
+            ],
+            "properties": {
+              "field_id": { "type": "string" },
+              "label": { "type": "string" },
+              "type": {
+                "enum": [
+                  "text",
+                  "email",
+                  "tel",
+                  "textarea",
+                  "checkbox",
+                  "radio",
+                  "select",
+                  "combobox",
+                  "file",
+                  "unknown"
+                ]
+              },
+              "required": { "type": "boolean" },
+              "options": {
+                "type": "array",
+                "items": { "type": "string" }
+              },
+              "placeholder": { "type": ["string", "null"] },
+              "help_text": { "type": ["string", "null"] },
+              "section": { "type": ["string", "null"] },
+              "current_value": {
+                "oneOf": [
+                  { "type": "string" },
+                  { "type": "boolean" },
+                  {
+                    "type": "array",
+                    "items": { "type": "string" }
+                  },
+                  { "type": "null" }
+                ]
+              },
+              "selector_hint": { "type": ["string", "null"] },
+              "visible": { "type": "boolean" },
+              "enabled": { "type": "boolean" },
+              "validation_text": { "type": ["string", "null"] }
+            },
+            "additionalProperties": false
+          }
+        },
+        "warnings": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "extracted_at": { "type": "string", "format": "date-time" }
+      },
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "required": [
+        "status",
+        "reason",
+        "current_url",
+        "ats_guess",
+        "screenshot_path",
+        "trace_path",
+        "extracted_at"
+      ],
+      "properties": {
+        "status": { "enum": ["blocked", "error"] },
+        "reason": { "type": "string" },
+        "current_url": { "type": "string", "format": "uri" },
+        "ats_guess": { "enum": ["greenhouse", "linkedin_easy_apply", "unknown"] },
+        "screenshot_path": { "type": ["string", "null"] },
+        "trace_path": { "type": ["string", "null"] },
+        "extracted_at": { "type": "string", "format": "date-time" }
+      },
+      "additionalProperties": false
+    }
+  ]
+}
