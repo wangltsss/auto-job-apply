@@ -1,0 +1,228 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/schemas/answer-plan.schema.json",
+  "title": "AnswerPlan",
+  "type": "object",
+  "required": [
+    "status",
+    "reason",
+    "ats",
+    "application_url",
+    "submit_allowed",
+    "answers",
+    "ambiguous_fields",
+    "notes",
+    "generated_at"
+  ],
+  "properties": {
+    "status": {
+      "enum": ["proceed", "quarantine", "not_eligible"]
+    },
+    "reason": {
+      "type": "string"
+    },
+    "ats": {
+      "enum": ["greenhouse", "linkedin_easy_apply", "unknown"]
+    },
+    "application_url": {
+      "type": "string",
+      "format": "uri"
+    },
+    "submit_allowed": {
+      "type": "boolean"
+    },
+    "answers": {
+      "type": "array",
+      "items": {
+        "oneOf": [
+          {
+            "type": "object",
+            "required": [
+              "field_id",
+              "answer_type",
+              "value",
+              "confidence",
+              "rationale_short",
+              "requires_human_review"
+            ],
+            "properties": {
+              "field_id": { "type": "string" },
+              "answer_type": { "const": "scalar" },
+              "value": {
+                "oneOf": [
+                  { "type": "string" },
+                  { "type": "number" },
+                  { "type": "boolean" }
+                ]
+              },
+              "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+              "rationale_short": { "type": "string" },
+              "requires_human_review": { "type": "boolean" }
+            },
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "required": [
+              "field_id",
+              "answer_type",
+              "value",
+              "confidence",
+              "rationale_short",
+              "requires_human_review"
+            ],
+            "properties": {
+              "field_id": { "type": "string" },
+              "answer_type": { "const": "option" },
+              "value": { "type": "string" },
+              "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+              "rationale_short": { "type": "string" },
+              "requires_human_review": { "type": "boolean" }
+            },
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "required": [
+              "field_id",
+              "answer_type",
+              "value",
+              "confidence",
+              "rationale_short",
+              "requires_human_review"
+            ],
+            "properties": {
+              "field_id": { "type": "string" },
+              "answer_type": { "const": "multi_select" },
+              "value": {
+                "type": "array",
+                "items": { "type": "string" }
+              },
+              "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+              "rationale_short": { "type": "string" },
+              "requires_human_review": { "type": "boolean" }
+            },
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "required": [
+              "field_id",
+              "answer_type",
+              "value",
+              "confidence",
+              "rationale_short",
+              "requires_human_review"
+            ],
+            "properties": {
+              "field_id": { "type": "string" },
+              "answer_type": { "const": "file_action" },
+              "value": {
+                "type": "object",
+                "required": ["action", "file_path", "file_kind"],
+                "properties": {
+                  "action": { "enum": ["upload", "skip"] },
+                  "file_path": { "type": ["string", "null"] },
+                  "file_kind": {
+                    "enum": ["resume", "cover_letter", "portfolio", "other"]
+                  }
+                },
+                "allOf": [
+                  {
+                    "if": {
+                      "properties": { "action": { "const": "upload" } }
+                    },
+                    "then": {
+                      "properties": { "file_path": { "type": "string", "minLength": 1 } }
+                    }
+                  },
+                  {
+                    "if": {
+                      "properties": { "action": { "const": "skip" } }
+                    },
+                    "then": {
+                      "properties": { "file_path": { "type": "null" } }
+                    }
+                  }
+                ],
+                "additionalProperties": false
+              },
+              "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+              "rationale_short": { "type": "string" },
+              "requires_human_review": { "type": "boolean" }
+            },
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "required": [
+              "field_id",
+              "answer_type",
+              "value",
+              "confidence",
+              "rationale_short",
+              "requires_human_review"
+            ],
+            "properties": {
+              "field_id": { "type": "string" },
+              "answer_type": { "const": "skip" },
+              "value": { "type": "null" },
+              "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+              "rationale_short": { "type": "string" },
+              "requires_human_review": { "type": "boolean" }
+            },
+            "additionalProperties": false
+          }
+        ]
+      }
+    },
+    "ambiguous_fields": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["field_id", "issue", "candidate_values", "recommendation"],
+        "properties": {
+          "field_id": { "type": "string" },
+          "issue": { "type": "string" },
+          "candidate_values": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "recommendation": { "type": ["string", "null"] }
+        },
+        "additionalProperties": false
+      }
+    },
+    "notes": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": { "status": { "const": "proceed" } }
+      },
+      "then": {
+        "properties": { "submit_allowed": { "const": true } }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "enum": ["quarantine", "not_eligible"]
+          }
+        }
+      },
+      "then": {
+        "properties": { "submit_allowed": { "const": false } }
+      }
+    }
+  ]
+}
