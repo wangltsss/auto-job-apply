@@ -1,0 +1,23 @@
+{
+  "name": "auto-apply-scraper",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Deterministic Playwright-based scraper for ATS application forms",
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "playwright test",
+    "scrape": "tsx examples/scrape-page.ts",
+    "scrape:linkedin": "tsx examples/scrape-linkedin-easy-apply.ts"
+  },
+  "dependencies": {
+    "playwright": "^1.52.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.52.0",
+    "@types/node": "^22.14.0",
+    "tsx": "^4.19.3",
+    "typescript": "^5.8.2"
+  }
+}
