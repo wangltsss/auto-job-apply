@@ -1,0 +1,56 @@
+{
+  "status": "quarantine",
+  "reason": "Compensation history and relocation fields are ambiguous and high-risk.",
+  "ats": "linkedin_easy_apply",
+  "application_url": "https://www.linkedin.com/jobs/view/123456789",
+  "submit_allowed": false,
+  "answers": [
+    {
+      "field_id": "salary_expectation",
+      "answer_type": "skip",
+      "value": null,
+      "confidence": 0.15,
+      "rationale_short": "No approved compensation target in profile.",
+      "requires_human_review": true
+    },
+    {
+      "field_id": "relocation",
+      "answer_type": "option",
+      "value": "Maybe",
+      "confidence": 0.42,
+      "rationale_short": "Conflicting relocation preferences found.",
+      "requires_human_review": true
+    },
+    {
+      "field_id": "cover_letter",
+      "answer_type": "file_action",
+      "value": {
+        "action": "skip",
+        "file_path": null,
+        "file_kind": "cover_letter"
+      },
+      "confidence": 0.88,
+      "rationale_short": "No tailored cover letter generated yet.",
+      "requires_human_review": true
+    }
+  ],
+  "ambiguous_fields": [
+    {
+      "field_id": "salary_expectation",
+      "issue": "Field units and expected range are unclear.",
+      "candidate_values": ["120000", "130000", "Negotiable"],
+      "recommendation": "Request explicit human confirmation before execution."
+    },
+    {
+      "field_id": "relocation",
+      "issue": "Different sources disagree on willingness to relocate.",
+      "candidate_values": ["Yes", "No", "Maybe"],
+      "recommendation": "Use recent preference from applicant UI settings."
+    }
+  ],
+  "notes": [
+    "Quarantine blocks deterministic executor by design.",
+    "Human review required for high-risk/ambiguous fields."
+  ],
+  "generated_at": "2026-03-07T02:05:00.000Z"
+}

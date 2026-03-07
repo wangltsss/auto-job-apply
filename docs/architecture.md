@@ -21,5 +21,6 @@
 - Bounded page navigation timeout.
 - Centralized selector hints and reusable inference helpers.
 
-## Future execution layer integration
-Execution/fill logic should be implemented in a separate module consuming `ExtractedFormSuccess` artifacts. Keep it separate from extractors to preserve clean read-vs-write boundaries.
+## Next layer: Answer Plan
+The reasoning layer should emit an Answer Plan artifact using `playwright/schemas/answer-plan.schema.json`.
+That artifact is the handoff between extraction and deterministic execution.

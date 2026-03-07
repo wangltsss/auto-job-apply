@@ -1,13 +1,16 @@
-# Auto-Apply Scraper (Collector Layer)
+# Auto-Apply Pipeline Contracts
 
-Deterministic Playwright + TypeScript scraper for extracting job-application forms into a normalized JSON schema.
+TypeScript + Playwright project focused on deterministic job-application automation contracts.
+
+## Implemented layers
+- Scraper/collector layer for extracting ATS application forms
+- Answer Plan contract for reasoning output validation
 
 ## Scope
-- Opens a job application page
-- Detects ATS where possible (`greenhouse`, `linkedin_easy_apply`, fallback `unknown`)
-- Extracts current step + visible form fields
-- Writes machine-readable artifacts under `artifacts/forms/`
-- Does **not** decide answers
+- Opens application pages and extracts normalized form data
+- Detects ATS where possible (`greenhouse`, `linkedin_easy_apply`, `unknown`)
+- Produces machine-readable JSON artifacts
+- Defines strict `AnswerPlan` schema for LLM/OpenClaw output
 - Does **not** submit applications
 
 ## Quick start
@@ -16,22 +19,11 @@ npm install
 npm run scrape -- "https://jobs.example.com/apply"
 ```
 
-LinkedIn Easy Apply (already authenticated state expected):
-```bash
-npm run scrape:linkedin -- "https://www.linkedin.com/jobs/view/..." "./state/linkedin.json"
-```
+## Contracts
+- Extracted form schema: `playwright/schemas/form.schema.json`
+- Answer plan schema: `playwright/schemas/answer-plan.schema.json`
+- Answer plan examples: `examples/answer-plans/`
 
-## Output
-Artifacts are written as:
-- `artifacts/forms/<timestamp>_<page-token>.json`
-
-Failure artifacts include:
-- `status`
-- `reason`
-- `current_url`
-- `ats_guess`
-- `screenshot_path`
-- `trace_path` (if trace enabled)
-
-## Architecture
-See `docs/architecture.md`.
+## Docs
+- Scraper architecture: `docs/architecture.md`
+- Answer plan contract: `docs/answer-plan-contract.md`
