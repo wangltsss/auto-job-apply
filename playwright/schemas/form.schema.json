@@ -44,7 +44,20 @@
               "selector_hint",
               "visible",
               "enabled",
-              "validation_text"
+              "validation_text",
+              "semantic_category",
+              "group_id",
+              "group_label",
+              "group_type",
+              "options_deferred",
+              "file_kind",
+              "sensitivity",
+              "auto_answer_safe",
+              "internal",
+              "source_tag",
+              "name_attr",
+              "id_attr",
+              "aria_label"
             ],
             "properties": {
               "field_id": { "type": "string" },
@@ -85,7 +98,32 @@
               "selector_hint": { "type": ["string", "null"] },
               "visible": { "type": "boolean" },
               "enabled": { "type": "boolean" },
-              "validation_text": { "type": ["string", "null"] }
+              "validation_text": { "type": ["string", "null"] },
+              "semantic_category": {
+                "enum": [
+                  "personal_identity",
+                  "contact_info",
+                  "profile_link",
+                  "work_authorization",
+                  "employment_history",
+                  "compensation",
+                  "attachment",
+                  "demographic",
+                  "unknown"
+                ]
+              },
+              "group_id": { "type": ["string", "null"] },
+              "group_label": { "type": ["string", "null"] },
+              "group_type": { "enum": ["none", "single_choice", "multi_choice"] },
+              "options_deferred": { "type": "boolean" },
+              "file_kind": { "enum": ["resume", "cover_letter", "other", "unknown"] },
+              "sensitivity": { "enum": ["none", "demographic", "legal", "compensation"] },
+              "auto_answer_safe": { "type": "boolean" },
+              "internal": { "type": "boolean" },
+              "source_tag": { "type": ["string", "null"] },
+              "name_attr": { "type": ["string", "null"] },
+              "id_attr": { "type": ["string", "null"] },
+              "aria_label": { "type": ["string", "null"] }
             },
             "additionalProperties": false
           }

@@ -20,6 +20,10 @@ export type {
   ExtractedFormFailure,
   ExtractedFormResult,
   ExtractedFormSuccess,
+  FileKind,
   FieldType,
+  GroupType,
+  SemanticCategory,
+  Sensitivity,
   ScrapeOptions
 } from './schemas/types.js';

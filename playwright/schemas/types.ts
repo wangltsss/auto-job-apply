@@ -13,6 +13,20 @@ export type FieldType =
   | 'unknown';
 
 export type ScrapeStatus = 'success' | 'blocked' | 'error';
+export type SemanticCategory =
+  | 'personal_identity'
+  | 'contact_info'
+  | 'profile_link'
+  | 'work_authorization'
+  | 'employment_history'
+  | 'compensation'
+  | 'attachment'
+  | 'demographic'
+  | 'unknown';
+
+export type Sensitivity = 'none' | 'demographic' | 'legal' | 'compensation';
+export type FileKind = 'resume' | 'cover_letter' | 'other' | 'unknown';
+export type GroupType = 'none' | 'single_choice' | 'multi_choice';
 
 export interface ExtractedField {
   field_id: string;
@@ -28,6 +42,19 @@ export interface ExtractedField {
   visible: boolean;
   enabled: boolean;
   validation_text: string | null;
+  semantic_category: SemanticCategory;
+  group_id: string | null;
+  group_label: string | null;
+  group_type: GroupType;
+  options_deferred: boolean;
+  file_kind: FileKind;
+  sensitivity: Sensitivity;
+  auto_answer_safe: boolean;
+  internal: boolean;
+  source_tag: string | null;
+  name_attr: string | null;
+  id_attr: string | null;
+  aria_label: string | null;
 }
 
 export interface ExtractedFormSuccess {
