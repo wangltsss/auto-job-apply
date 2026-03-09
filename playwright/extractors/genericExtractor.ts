@@ -13,6 +13,7 @@ import {
   inferSensitivity
 } from '../utils/fieldSemantics.js';
 import { isInternalControl, shouldMarkOptionsDeferred } from '../utils/internalFieldPolicy.js';
+import { deduplicateFields } from '../utils/fieldDedup.js';
 
 interface ControlSnapshot {
   id: string | null;
@@ -207,7 +208,7 @@ export class GenericFormExtractor implements FormExtractor {
       });
     }
 
-    return fields;
+    return deduplicateFields(fields);
   }
 
   protected resolveFieldType(snapshot: ControlSnapshot): FieldType {
@@ -223,7 +224,8 @@ export class GenericFormExtractor implements FormExtractor {
       role: snapshot.role,
       nameAttr: snapshot.name,
       idAttr: snapshot.id,
-      label: snapshot.labelText ?? snapshot.ariaLabel
+      label: snapshot.labelText ?? snapshot.ariaLabel,
+      sourceTag: snapshot.sourceTag
     });
   }
 
