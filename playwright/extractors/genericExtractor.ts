@@ -3,7 +3,16 @@ import type { AtsType, ExtractedField, FieldType } from '../schemas/types.js';
 import type { ExtractorResult, FormExtractor } from './base.js';
 import { HELP_TEXT_SELECTORS, PRIMARY_FORM_SELECTORS, STEP_HINT_SELECTORS, VALIDATION_SELECTORS } from '../utils/selectors.js';
 import { cleanText, nullIfEmpty } from '../utils/text.js';
-import { inferTypeFromInput, isLikelyRequired, isSubmitLike } from '../utils/formInference.js';
+import { inferFieldType, isLikelyRequired, isSubmitLike } from '../utils/formInference.js';
+import { buildStableFieldId } from '../utils/fieldIdentity.js';
+import {
+  enrichWeakFileLabel,
+  inferAutoAnswerSafe,
+  inferFileKind,
+  inferSemanticCategory,
+  inferSensitivity
+} from '../utils/fieldSemantics.js';
+import { isInternalControl, shouldMarkOptionsDeferred } from '../utils/internalFieldPolicy.js';
 
 interface ControlSnapshot {
   id: string | null;
@@ -17,13 +26,16 @@ interface ControlSnapshot {
   ariaRequired: string | null;
   value: string | null;
   checked: boolean | null;
-  disabledAttr: string | null;
   labelText: string | null;
   sectionText: string | null;
   helpText: string | null;
   validationText: string | null;
   selectorHint: string | null;
   optionTexts: string[];
+  groupLabel: string | null;
+  isMultiple: boolean;
+  selectedValues: string[];
+  sourceTag: string;
 }
 
 export class GenericFormExtractor implements FormExtractor {
@@ -94,7 +106,23 @@ export class GenericFormExtractor implements FormExtractor {
     for (let i = 0; i < count; i += 1) {
       const control = controls.nth(i);
       const snapshot = await this.snapshotControl(control);
+      const visible = await control.isVisible().catch(() => false);
+      const enabled = await control.isEnabled().catch(() => false);
       const fieldType = this.resolveFieldType(snapshot);
+
+      const internal = isInternalControl({
+        tagName: snapshot.tagName,
+        typeAttr: snapshot.typeAttr,
+        idAttr: snapshot.id,
+        nameAttr: snapshot.name,
+        ariaLabel: snapshot.ariaLabel,
+        role: snapshot.role,
+        visible
+      });
+
+      if (internal) {
+        continue;
+      }
 
       if (fieldType === 'radio') {
         const groupKey = snapshot.name ?? snapshot.id;
@@ -102,7 +130,7 @@ export class GenericFormExtractor implements FormExtractor {
           continue;
         }
         seenRadioGroups.add(groupKey);
-        fields.push(await this.buildRadioGroupField(container, snapshot, groupKey));
+        fields.push(await this.buildRadioGroupField(container, snapshot, groupKey, i));
         continue;
       }
 
@@ -110,20 +138,72 @@ export class GenericFormExtractor implements FormExtractor {
         continue;
       }
 
+      const baseLabel = cleanText(snapshot.labelText ?? snapshot.ariaLabel ?? snapshot.name ?? snapshot.id ?? 'Unknown field');
+      const fileKind = fieldType === 'file'
+        ? inferFileKind({
+            label: baseLabel,
+            section: snapshot.sectionText,
+            helpText: snapshot.helpText,
+            nameAttr: snapshot.name,
+            idAttr: snapshot.id
+          })
+        : 'unknown';
+      const label = fieldType === 'file' ? enrichWeakFileLabel(baseLabel, fileKind) : baseLabel;
+
+      const semanticCategory = inferSemanticCategory({
+        label,
+        section: snapshot.sectionText,
+        helpText: snapshot.helpText,
+        nameAttr: snapshot.name,
+        idAttr: snapshot.id,
+        type: fieldType
+      });
+      const sensitivity = inferSensitivity(
+        {
+          label,
+          section: snapshot.sectionText,
+          helpText: snapshot.helpText,
+          nameAttr: snapshot.name,
+          idAttr: snapshot.id,
+          type: fieldType
+        },
+        semanticCategory
+      );
+      const optionsDeferred = shouldMarkOptionsDeferred(fieldType, snapshot.optionTexts.length);
+
       fields.push({
-        field_id: this.resolveFieldId(snapshot, i),
-        label: cleanText(snapshot.labelText ?? snapshot.ariaLabel ?? snapshot.name ?? snapshot.id ?? 'Unknown field'),
+        field_id: buildStableFieldId({
+          nameAttr: snapshot.name,
+          idAttr: snapshot.id,
+          label,
+          section: snapshot.sectionText,
+          index: i
+        }),
+        label,
         type: fieldType,
-        required: isLikelyRequired(snapshot.labelText ?? '', snapshot.ariaRequired, snapshot.requiredAttr),
+        required: isLikelyRequired(label, snapshot.ariaRequired, snapshot.requiredAttr),
         options: snapshot.optionTexts,
         placeholder: nullIfEmpty(snapshot.placeholder),
         help_text: nullIfEmpty(snapshot.helpText),
         section: nullIfEmpty(snapshot.sectionText),
         current_value: this.resolveCurrentValue(snapshot, fieldType),
         selector_hint: snapshot.selectorHint,
-        visible: await control.isVisible().catch(() => false),
-        enabled: await control.isEnabled().catch(() => false),
-        validation_text: nullIfEmpty(snapshot.validationText)
+        visible,
+        enabled,
+        validation_text: nullIfEmpty(snapshot.validationText),
+        semantic_category: semanticCategory,
+        group_id: null,
+        group_label: null,
+        group_type: 'none',
+        options_deferred: optionsDeferred,
+        file_kind: fileKind,
+        sensitivity,
+        auto_answer_safe: inferAutoAnswerSafe(sensitivity),
+        internal: false,
+        source_tag: snapshot.sourceTag,
+        name_attr: snapshot.name,
+        id_attr: snapshot.id,
+        aria_label: snapshot.ariaLabel
       });
     }
 
@@ -137,16 +217,21 @@ export class GenericFormExtractor implements FormExtractor {
     if (snapshot.tagName === 'select') {
       return 'select';
     }
-    if (snapshot.role?.toLowerCase() === 'combobox') {
-      return 'combobox';
-    }
-    return inferTypeFromInput(snapshot.typeAttr, snapshot.role);
+
+    return inferFieldType({
+      inputType: snapshot.typeAttr,
+      role: snapshot.role,
+      nameAttr: snapshot.name,
+      idAttr: snapshot.id,
+      label: snapshot.labelText ?? snapshot.ariaLabel
+    });
   }
 
   protected async buildRadioGroupField(
     container: Locator,
     firstSnapshot: ControlSnapshot,
-    groupKey: string
+    groupKey: string,
+    index: number
   ): Promise<ExtractedField> {
     const radios =
       firstSnapshot.name
@@ -172,11 +257,38 @@ export class GenericFormExtractor implements FormExtractor {
       enabled = enabled || (await radio.isEnabled().catch(() => false));
     }
 
+    const label = cleanText(firstSnapshot.groupLabel ?? firstSnapshot.labelText ?? firstSnapshot.ariaLabel ?? firstSnapshot.name ?? 'Radio group');
+    const semanticCategory = inferSemanticCategory({
+      label,
+      section: firstSnapshot.sectionText,
+      helpText: firstSnapshot.helpText,
+      nameAttr: firstSnapshot.name,
+      idAttr: firstSnapshot.id,
+      type: 'radio'
+    });
+    const sensitivity = inferSensitivity(
+      {
+        label,
+        section: firstSnapshot.sectionText,
+        helpText: firstSnapshot.helpText,
+        nameAttr: firstSnapshot.name,
+        idAttr: firstSnapshot.id,
+        type: 'radio'
+      },
+      semanticCategory
+    );
+
     return {
-      field_id: firstSnapshot.name ?? firstSnapshot.id ?? `radio-${groupKey}`,
-      label: cleanText(firstSnapshot.labelText ?? firstSnapshot.ariaLabel ?? firstSnapshot.name ?? 'Radio group'),
+      field_id: buildStableFieldId({
+        nameAttr: firstSnapshot.name,
+        idAttr: firstSnapshot.id,
+        label,
+        section: firstSnapshot.sectionText,
+        index
+      }),
+      label,
       type: 'radio',
-      required: isLikelyRequired(firstSnapshot.labelText ?? '', firstSnapshot.ariaRequired, firstSnapshot.requiredAttr),
+      required: isLikelyRequired(label, firstSnapshot.ariaRequired, firstSnapshot.requiredAttr),
       options,
       placeholder: null,
       help_text: nullIfEmpty(firstSnapshot.helpText),
@@ -185,7 +297,20 @@ export class GenericFormExtractor implements FormExtractor {
       selector_hint: firstSnapshot.selectorHint,
       visible,
       enabled,
-      validation_text: nullIfEmpty(firstSnapshot.validationText)
+      validation_text: nullIfEmpty(firstSnapshot.validationText),
+      semantic_category: semanticCategory,
+      group_id: firstSnapshot.name ?? firstSnapshot.id ?? null,
+      group_label: nullIfEmpty(firstSnapshot.groupLabel ?? label),
+      group_type: 'single_choice',
+      options_deferred: shouldMarkOptionsDeferred('radio', options.length),
+      file_kind: 'unknown',
+      sensitivity,
+      auto_answer_safe: inferAutoAnswerSafe(sensitivity),
+      internal: false,
+      source_tag: 'radio_group',
+      name_attr: firstSnapshot.name,
+      id_attr: firstSnapshot.id,
+      aria_label: firstSnapshot.ariaLabel
     };
   }
 
@@ -201,16 +326,29 @@ export class GenericFormExtractor implements FormExtractor {
       const placeholder = 'placeholder' in element ? (element as HTMLInputElement).placeholder : null;
       const requiredAttr = element.getAttribute('required');
       const ariaRequired = element.getAttribute('aria-required');
-      const disabledAttr = element.getAttribute('disabled');
       const value = 'value' in element ? (element as HTMLInputElement).value : null;
       const checked = 'checked' in element ? Boolean((element as HTMLInputElement).checked) : null;
+      const sourceTag = role === 'combobox' ? 'combobox_widget' : `dom:${tagName}`;
 
       const labels = 'labels' in element && element.labels ? Array.from(element.labels) : [];
       const labelFromLabels = labels.map((label) => label.textContent ?? '').join(' ').trim();
       const labelFromFor = id
         ? (document.querySelector(`label[for="${CSS.escape(id)}"]`)?.textContent ?? '').trim()
         : '';
-      const labelText = labelFromLabels || labelFromFor || null;
+      const fieldContainer = element.closest('fieldset, .field, .application-question, .jobs-easy-apply-form-section__grouping');
+      const legendText = fieldContainer?.querySelector('legend')?.textContent?.trim() ?? '';
+      const labelText = labelFromLabels || labelFromFor || legendText || null;
+
+      const sectionNode = fieldContainer?.closest('section, .application-section, .jobs-easy-apply-form-section')
+        ?.querySelector('h2, h3, legend, .header, .title');
+
+      const helpText = args.helpSelectors
+        .map((selector: string) => fieldContainer?.querySelector(selector)?.textContent?.trim() ?? '')
+        .find((text: string) => text.length > 0) || null;
+
+      const validationText = args.validationSelectors
+        .map((selector: string) => fieldContainer?.querySelector(selector)?.textContent?.trim() ?? '')
+        .find((text: string) => text.length > 0) || null;
 
       const optionTexts: string[] = [];
       if (tagName === 'select') {
@@ -221,6 +359,18 @@ export class GenericFormExtractor implements FormExtractor {
             optionTexts.push(text);
           }
         }
+      }
+
+      const dataListId = element.getAttribute('list');
+      if (dataListId) {
+        const list = document.getElementById(dataListId);
+        const entries = list?.querySelectorAll('option') ?? [];
+        entries.forEach((entry) => {
+          const text = entry.textContent?.trim() || (entry as HTMLOptionElement).value?.trim();
+          if (text) {
+            optionTexts.push(text);
+          }
+        });
       }
 
       if (role === 'combobox') {
@@ -237,17 +387,12 @@ export class GenericFormExtractor implements FormExtractor {
         }
       }
 
-      const fieldContainer = element.closest('fieldset, .field, .application-question, .jobs-easy-apply-form-section__grouping');
-      const sectionNode = fieldContainer?.closest('section, .application-section, .jobs-easy-apply-form-section')
-        ?.querySelector('h2, h3, legend, .header, .title');
+      const uniqueOptionTexts = Array.from(new Set(optionTexts));
 
-      const helpText = args.helpSelectors
-        .map((selector: string) => fieldContainer?.querySelector(selector)?.textContent?.trim() ?? '')
-        .find((text: string) => text.length > 0) || null;
-
-      const validationText = args.validationSelectors
-        .map((selector: string) => fieldContainer?.querySelector(selector)?.textContent?.trim() ?? '')
-        .find((text: string) => text.length > 0) || null;
+      const isMultiple = element instanceof HTMLSelectElement && element.multiple;
+      const selectedValues = isMultiple
+        ? Array.from((element as HTMLSelectElement).selectedOptions).map((option) => option.value)
+        : [];
 
       let selectorHint: string | null = null;
       if (id) {
@@ -270,13 +415,16 @@ export class GenericFormExtractor implements FormExtractor {
         ariaRequired,
         value,
         checked,
-        disabledAttr,
         labelText,
         sectionText: sectionNode?.textContent?.trim() ?? null,
         helpText,
         validationText,
         selectorHint,
-        optionTexts
+        optionTexts: uniqueOptionTexts,
+        groupLabel: legendText || null,
+        isMultiple,
+        selectedValues,
+        sourceTag
       };
     }, { helpSelectors: HELP_TEXT_SELECTORS, validationSelectors: VALIDATION_SELECTORS });
   }
@@ -302,16 +450,15 @@ export class GenericFormExtractor implements FormExtractor {
     return { visible: false, enabled: false };
   }
 
-  protected resolveFieldId(snapshot: ControlSnapshot, index: number): string {
-    return snapshot.id ?? snapshot.name ?? `field-${index + 1}`;
-  }
-
   protected resolveCurrentValue(snapshot: ControlSnapshot, type: FieldType): string | boolean | string[] | null {
     if (type === 'checkbox') {
       return Boolean(snapshot.checked);
     }
     if (type === 'file') {
       return null;
+    }
+    if ((type === 'select' || type === 'combobox') && snapshot.isMultiple) {
+      return snapshot.selectedValues;
     }
     return nullIfEmpty(snapshot.value);
   }

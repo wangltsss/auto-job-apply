@@ -1,5 +1,13 @@
 import type { FieldType } from '../schemas/types.js';
 
+interface FieldTypeInput {
+  inputType: string | null;
+  role: string | null;
+  nameAttr: string | null;
+  idAttr: string | null;
+  label: string | null;
+}
+
 export function inferTypeFromInput(inputType: string | null, role: string | null): FieldType {
   const lowered = (inputType ?? '').toLowerCase();
   const loweredRole = (role ?? '').toLowerCase();
@@ -23,6 +31,29 @@ export function inferTypeFromInput(inputType: string | null, role: string | null
     return 'file';
   }
   if (loweredRole === 'combobox') {
+    return 'combobox';
+  }
+  return 'unknown';
+}
+
+export function inferFieldType(input: FieldTypeInput): FieldType {
+  const strictType = inferTypeFromInput(input.inputType, input.role);
+  if (strictType !== 'text' && strictType !== 'unknown') {
+    return strictType;
+  }
+
+  if (strictType === 'text') {
+    const haystack = `${input.nameAttr ?? ''} ${input.idAttr ?? ''} ${input.label ?? ''}`.toLowerCase();
+    if (haystack.includes('email')) {
+      return 'email';
+    }
+    if (haystack.includes('phone') || haystack.includes('mobile') || haystack.includes('tel')) {
+      return 'tel';
+    }
+    return 'text';
+  }
+
+  if ((input.role ?? '').toLowerCase() === 'combobox') {
     return 'combobox';
   }
   return 'unknown';
