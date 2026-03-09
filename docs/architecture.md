@@ -1,11 +1,11 @@
 # Scraper Architecture
 
 ## Module boundaries
-- `playwright/schemas/`: shared TypeScript contracts + JSON schema + lightweight runtime validator
+- `playwright/schemas/`: shared TypeScript contracts + JSON schema + runtime validators
 - `playwright/ats/`: ATS detection only
 - `playwright/extractors/`: field extraction implementations (`generic`, `greenhouse`, `linkedin_easy_apply`)
 - `playwright/core/`: browser session and scrape orchestration
-- `playwright/utils/`: text normalization, selector constants, artifact writing
+- `playwright/utils/`: text normalization, selector constants, semantic inference, field identity, and artifact writing
 
 ## Runtime flow
 1. `scrapeForm()` launches browser context and opens URL.
@@ -15,11 +15,21 @@
 5. Extracted payload is normalized and saved to `artifacts/forms/*.json`.
 6. On blocked/error states, screenshot + optional trace are captured and returned in structured failure payload.
 
-## Determinism principles
-- Conservative extraction only; no mutation/submission actions.
-- Locator-based APIs over brittle deep selectors.
-- Bounded page navigation timeout.
-- Centralized selector hints and reusable inference helpers.
+## Field identity contract
+`field_id` generation is deterministic and follows this precedence:
+1. DOM `name` attribute
+2. DOM `id` attribute
+3. normalized label slug
+4. normalized section+label slug
+5. hash fallback (`field-<sha1_10>`) as last resort
+
+This behavior is implemented in `playwright/utils/fieldIdentity.ts`.
+
+## Output quality policy
+- Internal helper controls are filtered from the primary field list.
+- Sensitive fields are marked with explicit `semantic_category`, `sensitivity`, and `auto_answer_safe`.
+- File uploads are enriched with `file_kind` and stronger labels when evidence exists.
+- Select/combobox ambiguity is explicit through `options_deferred`.
 
 ## Next layer: Answer Plan
 The reasoning layer should emit an Answer Plan artifact using `playwright/schemas/answer-plan.schema.json`.

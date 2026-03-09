@@ -25,7 +25,20 @@ test('accepts valid success payload shape', () => {
         selector_hint: '#email',
         visible: true,
         enabled: true,
-        validation_text: null
+        validation_text: null,
+        semantic_category: 'contact_info',
+        group_id: null,
+        group_label: null,
+        group_type: 'none',
+        options_deferred: false,
+        file_kind: 'unknown',
+        sensitivity: 'none',
+        auto_answer_safe: true,
+        internal: false,
+        source_tag: 'dom:input',
+        name_attr: 'email',
+        id_attr: 'email',
+        aria_label: null
       }
     ],
     warnings: [],
