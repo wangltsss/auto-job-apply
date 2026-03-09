@@ -3,4 +3,5 @@ dist
 playwright-report
 test-results
 artifacts/forms/*.json
+artifacts/answer-plans/*.json
 artifacts/runtime

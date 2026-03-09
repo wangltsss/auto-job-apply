@@ -9,7 +9,8 @@
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "playwright test",
     "scrape": "tsx examples/scrape-page.ts",
-    "scrape:linkedin": "tsx examples/scrape-linkedin-easy-apply.ts"
+    "scrape:linkedin": "tsx examples/scrape-linkedin-easy-apply.ts",
+    "answer-plan": "tsx examples/run-answer-plan.ts"
   },
   "dependencies": {
     "playwright": "^1.52.0"
