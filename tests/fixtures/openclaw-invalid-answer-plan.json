@@ -1,0 +1,11 @@
+{
+  "status": "proceed",
+  "reason": "Invalid because submit_allowed false conflicts with proceed.",
+  "ats": "greenhouse",
+  "application_url": "https://job-boards.greenhouse.io/example/jobs/12345",
+  "submit_allowed": false,
+  "answers": [],
+  "ambiguous_fields": [],
+  "notes": [],
+  "generated_at": "2026-03-09T12:05:00.000Z"
+}
