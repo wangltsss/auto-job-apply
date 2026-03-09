@@ -10,7 +10,8 @@
     "test": "playwright test",
     "scrape": "tsx examples/scrape-page.ts",
     "scrape:linkedin": "tsx examples/scrape-linkedin-easy-apply.ts",
-    "answer-plan": "tsx examples/run-answer-plan.ts"
+    "answer-plan": "tsx examples/run-answer-plan.ts",
+    "executor": "tsx examples/run-executor.ts"
   },
   "dependencies": {
     "playwright": "^1.52.0"
