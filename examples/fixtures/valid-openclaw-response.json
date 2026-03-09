@@ -1,0 +1,58 @@
+{
+  "status": "quarantine",
+  "reason": "Legal authorization question is unresolved and demographic field is skipped by policy.",
+  "ats": "greenhouse",
+  "application_url": "https://job-boards.greenhouse.io/example/jobs/12345",
+  "submit_allowed": false,
+  "answers": [
+    {
+      "field_id": "first_name",
+      "answer_type": "scalar",
+      "value": "Taylor",
+      "confidence": 0.99,
+      "rationale_short": "Direct profile match.",
+      "requires_human_review": false
+    },
+    {
+      "field_id": "resume",
+      "answer_type": "file_action",
+      "value": {
+        "action": "upload",
+        "file_path": "/home/shawn/Documents/auto-apply/assets/resume-tailored.pdf",
+        "file_kind": "resume"
+      },
+      "confidence": 0.95,
+      "rationale_short": "Preferred resume file found.",
+      "requires_human_review": false
+    },
+    {
+      "field_id": "eeoc_gender",
+      "answer_type": "skip",
+      "value": null,
+      "confidence": 0.9,
+      "rationale_short": "Skipped demographic field by default policy.",
+      "requires_human_review": false
+    },
+    {
+      "field_id": "work_auth",
+      "answer_type": "skip",
+      "value": null,
+      "confidence": 0.31,
+      "rationale_short": "Combobox options deferred and answer cannot be inferred safely.",
+      "requires_human_review": true
+    }
+  ],
+  "ambiguous_fields": [
+    {
+      "field_id": "work_auth",
+      "issue": "No explicit option labels were available in extracted form.",
+      "candidate_values": ["Yes", "No"],
+      "recommendation": "Require human review before execution."
+    }
+  ],
+  "notes": [
+    "Do not submit while status is quarantine.",
+    "Demographic fields intentionally skipped."
+  ],
+  "generated_at": "2026-03-09T12:02:00.000Z"
+}
