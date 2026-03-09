@@ -16,6 +16,9 @@ export function inferSemanticCategory(input: SemanticInput): SemanticCategory {
   if (input.type === 'file') {
     return 'attachment';
   }
+  if (contains(haystack, ['country', 'location', 'located', 'city', 'state', 'province', 'postal', 'zip', 'commute', 'relocate'])) {
+    return 'contact_info';
+  }
   if (contains(haystack, ['email', 'phone', 'mobile', 'linkedin', 'github', 'portfolio', 'website', 'contact'])) {
     return contains(haystack, ['linkedin', 'github', 'portfolio', 'website']) ? 'profile_link' : 'contact_info';
   }
@@ -59,7 +62,7 @@ export function inferAutoAnswerSafe(sensitivity: Sensitivity): boolean {
 }
 
 export function inferFileKind(input: Pick<SemanticInput, 'label' | 'section' | 'helpText' | 'nameAttr' | 'idAttr'>): FileKind {
-  const haystack = cleanText(`${input.label} ${input.section ?? ''} ${input.helpText ?? ''} ${input.nameAttr ?? ''} ${input.idAttr ?? ''}`).toLowerCase();
+  const haystack = normalizedHaystack(input);
   if (!haystack) {
     return 'unknown';
   }
@@ -67,7 +70,7 @@ export function inferFileKind(input: Pick<SemanticInput, 'label' | 'section' | '
   if (contains(haystack, ['resume', 'cv'])) {
     return 'resume';
   }
-  if (contains(haystack, ['cover letter'])) {
+  if (contains(haystack, ['cover letter', 'coverletter'])) {
     return 'cover_letter';
   }
   if (contains(haystack, ['portfolio', 'sample', 'attachment'])) {
@@ -97,5 +100,15 @@ function contains(haystack: string, needles: string[]): boolean {
 }
 
 function fullHaystack(input: SemanticInput): string {
-  return cleanText(`${input.label} ${input.section ?? ''} ${input.helpText ?? ''} ${input.nameAttr ?? ''} ${input.idAttr ?? ''}`).toLowerCase();
+  return normalizedText(`${input.label} ${input.section ?? ''} ${input.helpText ?? ''} ${input.nameAttr ?? ''} ${input.idAttr ?? ''}`);
+}
+
+function normalizedHaystack(input: Pick<SemanticInput, 'label' | 'section' | 'helpText' | 'nameAttr' | 'idAttr'>): string {
+  return normalizedText(`${input.label} ${input.section ?? ''} ${input.helpText ?? ''} ${input.nameAttr ?? ''} ${input.idAttr ?? ''}`);
+}
+
+function normalizedText(value: string): string {
+  return cleanText(value)
+    .toLowerCase()
+    .replace(/[_-]+/g, ' ');
 }

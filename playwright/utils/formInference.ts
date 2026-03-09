@@ -6,6 +6,7 @@ interface FieldTypeInput {
   nameAttr: string | null;
   idAttr: string | null;
   label: string | null;
+  sourceTag?: string | null;
 }
 
 export function inferTypeFromInput(inputType: string | null, role: string | null): FieldType {
@@ -37,6 +38,12 @@ export function inferTypeFromInput(inputType: string | null, role: string | null
 }
 
 export function inferFieldType(input: FieldTypeInput): FieldType {
+  const loweredRole = (input.role ?? '').toLowerCase();
+  const loweredSourceTag = (input.sourceTag ?? '').toLowerCase();
+  if (loweredRole === 'combobox' || loweredSourceTag === 'combobox_widget') {
+    return 'combobox';
+  }
+
   const strictType = inferTypeFromInput(input.inputType, input.role);
   if (strictType !== 'text' && strictType !== 'unknown') {
     return strictType;
@@ -53,9 +60,6 @@ export function inferFieldType(input: FieldTypeInput): FieldType {
     return 'text';
   }
 
-  if ((input.role ?? '').toLowerCase() === 'combobox') {
-    return 'combobox';
-  }
   return 'unknown';
 }
 
