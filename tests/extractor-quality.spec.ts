@@ -1,6 +1,11 @@
+import fs from 'node:fs';
+import path from 'node:path';
 import { expect, test } from '@playwright/test';
+import type { ExtractedField } from '../playwright/schemas/types.js';
+import { deduplicateFields } from '../playwright/utils/fieldDedup.js';
 import { buildStableFieldId } from '../playwright/utils/fieldIdentity.js';
 import { inferAutoAnswerSafe, inferFileKind, inferSemanticCategory, inferSensitivity } from '../playwright/utils/fieldSemantics.js';
+import { inferFieldType } from '../playwright/utils/formInference.js';
 import { isInternalControl, shouldMarkOptionsDeferred } from '../playwright/utils/internalFieldPolicy.js';
 
 test('marks iti search helper as internal control', () => {
@@ -31,12 +36,36 @@ test('infers file kind for resume and cover letter', () => {
   expect(
     inferFileKind({
       label: 'Attach',
-      section: 'Cover Letter',
+      section: null,
       helpText: null,
-      nameAttr: 'cover_letter',
+      nameAttr: null,
       idAttr: 'cover_letter'
     })
   ).toBe('cover_letter');
+});
+
+test('classifies location and commute semantics as contact info', () => {
+  expect(
+    inferSemanticCategory({
+      label: 'Country',
+      section: null,
+      helpText: null,
+      nameAttr: 'country',
+      idAttr: 'country',
+      type: 'combobox'
+    })
+  ).toBe('contact_info');
+
+  expect(
+    inferSemanticCategory({
+      label: 'Commute preference',
+      section: null,
+      helpText: null,
+      nameAttr: 'commute_preference',
+      idAttr: null,
+      type: 'select'
+    })
+  ).toBe('contact_info');
 });
 
 test('marks demographic fields as sensitive and not auto-safe', () => {
@@ -69,6 +98,19 @@ test('marks unresolved combobox options as deferred', () => {
   expect(shouldMarkOptionsDeferred('combobox', 0)).toBeTruthy();
   expect(shouldMarkOptionsDeferred('select', 0)).toBeTruthy();
   expect(shouldMarkOptionsDeferred('combobox', 3)).toBeFalsy();
+});
+
+test('infers combobox from widget source evidence', () => {
+  expect(
+    inferFieldType({
+      inputType: 'text',
+      role: null,
+      nameAttr: 'country',
+      idAttr: 'country',
+      label: 'Country',
+      sourceTag: 'combobox_widget'
+    })
+  ).toBe('combobox');
 });
 
 test('buildStableFieldId follows precedence and is deterministic', () => {
@@ -106,4 +148,21 @@ test('buildStableFieldId follows precedence and is deterministic', () => {
       index: 2
     })
   ).toBe(fromLabel);
+});
+
+test('deduplicates greenhouse duplicate phone fields and keeps strongest record', () => {
+  const fixturePath = path.resolve('tests/fixtures/greenhouse-problematic-fields.json');
+  const fixture = JSON.parse(fs.readFileSync(fixturePath, 'utf-8')) as {
+    fields: ExtractedField[];
+  };
+
+  const deduped = deduplicateFields(fixture.fields);
+  const phones = deduped.filter((field) => field.field_id === 'phone');
+  const country = deduped.find((field) => field.field_id === 'country');
+
+  expect(phones).toHaveLength(1);
+  expect(phones[0]?.type).toBe('tel');
+  expect(phones[0]?.selector_hint).toBe('#phone');
+  expect(country?.type).toBe('combobox');
+  expect(country?.options_deferred).toBeTruthy();
 });
