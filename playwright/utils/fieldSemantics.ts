@@ -16,7 +16,13 @@ export function inferSemanticCategory(input: SemanticInput): SemanticCategory {
   if (input.type === 'file') {
     return 'attachment';
   }
-  if (contains(haystack, ['country', 'location', 'located', 'city', 'state', 'province', 'postal', 'zip', 'commute', 'relocate'])) {
+  if (contains(haystack, ['work authorization', 'authorized', 'sponsorship', 'visa', 'eligible to work'])) {
+    return 'work_authorization';
+  }
+  if (contains(haystack, ['commute', 'hybrid', 'in office', 'in-office', 'onsite', 'on-site'])) {
+    return 'unknown';
+  }
+  if (contains(haystack, ['country', 'location', 'located', 'city', 'state', 'province', 'postal', 'zip'])) {
     return 'contact_info';
   }
   if (contains(haystack, ['email', 'phone', 'mobile', 'linkedin', 'github', 'portfolio', 'website', 'contact'])) {
@@ -24,9 +30,6 @@ export function inferSemanticCategory(input: SemanticInput): SemanticCategory {
   }
   if (contains(haystack, ['first name', 'last name', 'full name', 'preferred name'])) {
     return 'personal_identity';
-  }
-  if (contains(haystack, ['work authorization', 'authorized', 'sponsorship', 'visa', 'eligible to work'])) {
-    return 'work_authorization';
   }
   if (contains(haystack, ['gender', 'race', 'ethnicity', 'veteran', 'disability', 'pronouns', 'self-identify', 'equal employment opportunity', 'eeo'])) {
     return 'demographic';

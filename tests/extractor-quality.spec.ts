@@ -44,7 +44,7 @@ test('infers file kind for resume and cover letter', () => {
   ).toBe('cover_letter');
 });
 
-test('classifies location and commute semantics as contact info', () => {
+test('classifies location semantics as contact info', () => {
   expect(
     inferSemanticCategory({
       label: 'Country',
@@ -55,7 +55,9 @@ test('classifies location and commute semantics as contact info', () => {
       type: 'combobox'
     })
   ).toBe('contact_info');
+});
 
+test('classifies commute/hybrid availability semantics as unknown', () => {
   expect(
     inferSemanticCategory({
       label: 'Commute preference',
@@ -65,7 +67,20 @@ test('classifies location and commute semantics as contact info', () => {
       idAttr: null,
       type: 'select'
     })
-  ).toBe('contact_info');
+  ).toBe('unknown');
+});
+
+test('classifies legal work authorization semantics correctly', () => {
+  expect(
+    inferSemanticCategory({
+      label: 'Are you legally authorized to work in the job location?',
+      section: null,
+      helpText: null,
+      nameAttr: null,
+      idAttr: 'question_auth',
+      type: 'combobox'
+    })
+  ).toBe('work_authorization');
 });
 
 test('marks demographic fields as sensitive and not auto-safe', () => {
