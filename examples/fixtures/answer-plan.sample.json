@@ -1,0 +1,50 @@
+{
+  "status": "proceed",
+  "reason": "All required fields are mapped safely for deterministic execution.",
+  "ats": "greenhouse",
+  "application_url": "https://job-boards.greenhouse.io/example/jobs/12345",
+  "submit_allowed": true,
+  "answers": [
+    {
+      "field_id": "first_name",
+      "answer_type": "scalar",
+      "value": "Taylor",
+      "confidence": 0.99,
+      "rationale_short": "Direct profile match.",
+      "requires_human_review": false
+    },
+    {
+      "field_id": "work_auth",
+      "answer_type": "option",
+      "value": "Yes",
+      "confidence": 0.85,
+      "rationale_short": "Known work authorization.",
+      "requires_human_review": false
+    },
+    {
+      "field_id": "resume",
+      "answer_type": "file_action",
+      "value": {
+        "action": "upload",
+        "file_path": "/home/shawn/Documents/auto-apply/examples/fixtures/mock-resume.pdf",
+        "file_kind": "resume"
+      },
+      "confidence": 0.9,
+      "rationale_short": "Use latest resume path.",
+      "requires_human_review": false
+    },
+    {
+      "field_id": "eeoc_gender",
+      "answer_type": "skip",
+      "value": null,
+      "confidence": 0.9,
+      "rationale_short": "Demographic question skipped by policy.",
+      "requires_human_review": false
+    }
+  ],
+  "ambiguous_fields": [],
+  "notes": [
+    "Dry-run recommended before real submission."
+  ],
+  "generated_at": "2026-03-09T14:00:00.000Z"
+}

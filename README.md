@@ -5,6 +5,7 @@ TypeScript + Playwright project focused on deterministic job-application automat
 ## Implemented layers
 - Scraper/collector layer for extracting ATS application forms
 - Reasoning bridge for OpenClaw prompt/run/parse/validate/write
+- Executor CLI for deterministic answer-plan application
 - Answer Plan contract for reasoning output validation
 
 ## Scope
@@ -12,13 +13,15 @@ TypeScript + Playwright project focused on deterministic job-application automat
 - Detects ATS where possible (`greenhouse`, `linkedin_easy_apply`, `unknown`)
 - Produces machine-readable JSON artifacts
 - Defines strict `AnswerPlan` schema for LLM/OpenClaw output
-- Does **not** submit applications
+- Deterministically executes validated answer plans
+- Does **not** do new reasoning during execution
 
 ## Quick start
 ```bash
 npm install
 npm run scrape -- "https://jobs.example.com/apply"
 npm run answer-plan
+npm run executor
 ```
 
 ## Contracts
@@ -30,3 +33,4 @@ npm run answer-plan
 - Scraper architecture: `docs/architecture.md`
 - Answer plan contract: `docs/answer-plan-contract.md`
 - Reasoning bridge: `docs/reasoning-bridge.md`
+- Executor: `docs/executor.md`
