@@ -2,7 +2,7 @@
   "status": "quarantine",
   "reason": "Legal authorization question is unresolved and demographic field is skipped by policy.",
   "ats": "greenhouse",
-  "application_url": "https://job-boards.greenhouse.io/example/jobs/12345",
+  "application_url": "https://jobs.example.test/apply/12345",
   "submit_allowed": false,
   "answers": [
     {

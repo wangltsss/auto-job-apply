@@ -5,6 +5,9 @@
   "description": "Deterministic Playwright-based scraper for ATS application forms",
   "type": "module",
   "scripts": {
+    "setup:device": "bash scripts/bootstrap-device.sh",
+    "doctor": "bash scripts/doctor.sh",
+    "deploy:device": "bash scripts/deploy-on-device.sh",
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "playwright test",

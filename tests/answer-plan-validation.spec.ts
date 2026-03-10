@@ -6,7 +6,7 @@ test('accepts valid proceed answer plan', () => {
     status: 'proceed',
     reason: 'All required fields mapped with high confidence.',
     ats: 'greenhouse',
-    application_url: 'https://boards.greenhouse.io/example/jobs/123',
+    application_url: 'https://jobs.example.test/apply/123',
     submit_allowed: true,
     answers: [
       {

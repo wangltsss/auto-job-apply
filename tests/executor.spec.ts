@@ -91,11 +91,11 @@ test('writeExecutionArtifact writes machine-readable file', async () => {
     const path = await writeExecutionArtifact(
       {
         status: 'success',
-        application_url: 'https://job-boards.greenhouse.io/example/jobs/12345',
+        application_url: 'https://jobs.example.test/apply/12345',
         ats: 'greenhouse',
         extracted_form_path: '/tmp/extracted.json',
         answer_plan_path: '/tmp/plan.json',
-        current_url: 'https://job-boards.greenhouse.io/example/jobs/12345',
+        current_url: 'https://jobs.example.test/apply/12345',
         headless: true,
         storage_state_path: null,
         started_at: '2026-03-09T12:00:00.000Z',

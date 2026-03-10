@@ -19,6 +19,7 @@ TypeScript + Playwright project focused on deterministic job-application automat
 ## Quick start
 ```bash
 npm install
+npm run setup:device
 npm run scrape -- "https://jobs.example.com/apply"
 npm run answer-plan
 npm run executor -- --mock
@@ -34,3 +35,4 @@ npm run executor -- --mock
 - Answer plan contract: `docs/answer-plan-contract.md`
 - Reasoning bridge: `docs/reasoning-bridge.md`
 - Executor: `docs/executor.md`
+- Deployment: `docs/deployment.md`

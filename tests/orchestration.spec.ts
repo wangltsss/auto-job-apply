@@ -5,7 +5,7 @@ test('pipeline wires stages and propagates artifact paths on success', async () 
   const out = await runPipeline(
     {
       mode: 'full',
-      url: 'https://job-boards.greenhouse.io/example/jobs/12345'
+      url: 'https://jobs.example.test/apply/12345'
     },
     {
       runScrape: async () => ({
@@ -13,7 +13,7 @@ test('pipeline wires stages and propagates artifact paths on success', async () 
         scrapeArtifactPath: '/tmp/form.json',
         scrapeResult: {
           status: 'success',
-          url: 'https://job-boards.greenhouse.io/example/jobs/12345',
+          url: 'https://jobs.example.test/apply/12345',
           ats: 'greenhouse',
           page_title: 'Example',
           current_step: null,
@@ -49,7 +49,7 @@ test('pipeline stops on failure and records failure stage/code', async () => {
   const out = await runPipeline(
     {
       mode: 'full',
-      url: 'https://job-boards.greenhouse.io/example/jobs/12345'
+      url: 'https://jobs.example.test/apply/12345'
     },
     {
       runScrape: async () => ({
@@ -57,7 +57,7 @@ test('pipeline stops on failure and records failure stage/code', async () => {
         scrapeArtifactPath: '/tmp/form.json',
         scrapeResult: {
           status: 'success',
-          url: 'https://job-boards.greenhouse.io/example/jobs/12345',
+          url: 'https://jobs.example.test/apply/12345',
           ats: 'greenhouse',
           page_title: 'Example',
           current_step: null,
@@ -85,7 +85,7 @@ test('scrape-only mode runs only scrape stage', async () => {
   const out = await runPipeline(
     {
       mode: 'scrape',
-      url: 'https://job-boards.greenhouse.io/example/jobs/12345'
+      url: 'https://jobs.example.test/apply/12345'
     },
     {
       runScrape: async () => ({
@@ -93,7 +93,7 @@ test('scrape-only mode runs only scrape stage', async () => {
         scrapeArtifactPath: '/tmp/form.json',
         scrapeResult: {
           status: 'success',
-          url: 'https://job-boards.greenhouse.io/example/jobs/12345',
+          url: 'https://jobs.example.test/apply/12345',
           ats: 'greenhouse',
           page_title: 'Example',
           current_step: null,

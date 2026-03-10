@@ -1,6 +1,6 @@
 {
   "status": "success",
-  "url": "https://job-boards.greenhouse.io/example/jobs/12345",
+  "url": "https://jobs.example.test/apply/12345",
   "ats": "greenhouse",
   "page_title": "Job Application for Software Engineer at Example",
   "current_step": "Application",
