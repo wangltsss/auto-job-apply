@@ -11,7 +11,11 @@
     "scrape": "tsx examples/scrape-page.ts",
     "scrape:linkedin": "tsx examples/scrape-linkedin-easy-apply.ts",
     "answer-plan": "tsx examples/run-answer-plan.ts",
-    "executor": "tsx examples/run-executor.ts"
+    "executor": "tsx examples/run-executor.ts",
+    "tool:scrape": "tsx tools/scrape-cli.ts",
+    "tool:answer-plan": "tsx tools/answer-plan-cli.ts",
+    "tool:execute": "tsx tools/execute-cli.ts",
+    "tool:pipeline": "tsx tools/pipeline-cli.ts"
   },
   "dependencies": {
     "playwright": "^1.52.0"

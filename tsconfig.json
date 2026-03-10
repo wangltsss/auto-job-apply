@@ -14,5 +14,13 @@
     "rootDir": ".",
     "types": ["node"]
   },
-  "include": ["playwright/**/*.ts", "reasoning/**/*.ts", "executor/**/*.ts", "examples/**/*.ts", "tests/**/*.ts"]
+  "include": [
+    "playwright/**/*.ts",
+    "reasoning/**/*.ts",
+    "executor/**/*.ts",
+    "orchestration/**/*.ts",
+    "tools/**/*.ts",
+    "examples/**/*.ts",
+    "tests/**/*.ts"
+  ]
 }

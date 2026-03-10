@@ -8,6 +8,7 @@ import { ReasoningBridgeError } from './errors.js';
 import type {
   ApplicantProfile,
   OpenClawRunnerOptions,
+  ReasoningPolicyFlags,
   ReasoningBridgeFailure,
   ReasoningBridgeResult,
   ReasoningBridgeSuccess
@@ -16,7 +17,7 @@ import type {
 export interface RunReasoningBridgeOptions {
   extractedFormArtifactPath: string;
   applicantProfile: ApplicantProfile;
-  policyFlags?: Partial<typeof DEFAULT_POLICY_FLAGS>;
+  policyFlags?: Partial<ReasoningPolicyFlags>;
   openClaw?: OpenClawRunnerOptions;
   mockOpenClawRawOutputPath?: string;
 }
