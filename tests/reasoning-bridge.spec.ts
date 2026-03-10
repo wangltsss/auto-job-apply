@@ -18,7 +18,7 @@ test('buildReasoningInput keeps only reasoning-relevant field properties', async
   });
 
   expect(reasoning.ats).toBe('greenhouse');
-  expect(reasoning.application_url).toContain('greenhouse.io/example/jobs/12345');
+  expect(reasoning.application_url).toContain('jobs.example.test/apply/12345');
   expect(reasoning.fields[0]).toEqual(
     expect.objectContaining({
       field_id: 'first_name',

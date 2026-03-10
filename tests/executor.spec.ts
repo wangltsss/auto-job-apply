@@ -117,7 +117,7 @@ test('writeExecutionArtifact writes machine-readable file', async () => {
     const parsed = JSON.parse(content) as { status: string; notes: string[]; current_url: string };
     expect(parsed.status).toBe('success');
     expect(parsed.notes).toEqual(['ok']);
-    expect(parsed.current_url).toContain('greenhouse');
+    expect(parsed.current_url).toContain('jobs.example.test');
   } finally {
     await rm(tempDir, { recursive: true, force: true });
   }
@@ -138,7 +138,7 @@ test('mocked dry-run executor produces execution result artifact', async () => {
   expect(result.status).toBe('success');
   expect(result.submit_attempted).toBeFalsy();
   expect(result.applied_actions.length).toBeGreaterThan(0);
-  expect(result.current_url).toContain('greenhouse');
+  expect(result.current_url).toContain('jobs.example.test');
   const content = await readFile(artifactPath, 'utf-8');
   expect(JSON.parse(content).status).toBe('success');
 });
