@@ -11,6 +11,7 @@ It deterministically applies actions and records execution results.
 - Strict handler dispatch by `answer_type`.
 - Deterministic field resolution precedence (`selector_hint` -> `id_attr` -> `name_attr` -> `aria_label` -> label fallback).
 - Explicit failure codes for critical errors.
+- Dry-run is the default execution mode.
 
 ## Main modules
 - `executor/loadExecutionInputs.ts`
@@ -32,21 +33,26 @@ It deterministically applies actions and records execution results.
 - `unsupported_field_type`
 - `verification_failed`
 - `upload_failed`
+- `navigation_failed`
+- `session_state_invalid`
+- `live_field_not_found`
+- `live_verification_failed`
+- `upload_widget_bind_failed`
 - `submit_blocked_by_policy`
 - `submit_failed`
 
 ## CLI example
-Mocked dry-run (default):
+Real Greenhouse dry-run:
 ```bash
-npm run executor
+npm run executor -- ./artifacts/forms/<form>.json ./artifacts/answer-plans/<plan>.json --storage-state ./state/linkedin.json --headed
 ```
 
-Real Playwright session (requires live reachable page and optional auth state):
+Mocked dry-run:
 ```bash
-npm run executor -- ./artifacts/forms/<form>.json ./artifacts/answer-plans/<plan>.json --real
+npm run executor -- --mock
 ```
 
-Attempt submit explicitly:
+Real run with explicit submit attempt:
 ```bash
-npm run executor -- ./artifacts/forms/<form>.json ./artifacts/answer-plans/<plan>.json --real --submit
+npm run executor -- ./artifacts/forms/<form>.json ./artifacts/answer-plans/<plan>.json --storage-state ./state/linkedin.json --submit
 ```

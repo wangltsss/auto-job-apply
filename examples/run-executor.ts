@@ -1,20 +1,17 @@
-import { resolve } from 'node:path';
+import { parseExecutorCliArgs } from '../executor/cliArgs.js';
 import { runExecutor } from '../executor/index.js';
 
 async function main(): Promise<void> {
-  const extractedPath = process.argv[2] ?? resolve('examples/fixtures/extracted-form.sample.json');
-  const answerPlanPath = process.argv[3] ?? resolve('examples/fixtures/answer-plan.sample.json');
+  const parsed = parseExecutorCliArgs(process.argv.slice(2));
 
-  const submitFlag = process.argv.includes('--submit');
-  const headedFlag = process.argv.includes('--headed');
-  const realFlag = process.argv.includes('--real');
-
-  const { result, artifactPath } = await runExecutor(extractedPath, answerPlanPath, {
-    dryRun: !submitFlag,
-    attemptSubmit: submitFlag,
-    headless: !headedFlag,
-    traceEnabled: true,
-    mockMode: !realFlag
+  const { result, artifactPath } = await runExecutor(parsed.extractedFormPath, parsed.answerPlanPath, {
+    dryRun: parsed.dryRun,
+    attemptSubmit: parsed.attemptSubmit,
+    headless: parsed.headless,
+    traceEnabled: parsed.traceEnabled,
+    storageStatePath: parsed.storageStatePath,
+    mockMode: parsed.mockMode,
+    cdpEndpoint: parsed.cdpEndpoint
   });
 
   console.log(
@@ -24,7 +21,10 @@ async function main(): Promise<void> {
         failure_code: result.failure_code,
         artifactPath,
         submit_attempted: result.submit_attempted,
-        submit_succeeded: result.submit_succeeded
+        submit_succeeded: result.submit_succeeded,
+        current_url: result.current_url,
+        headless: result.headless,
+        storage_state_path: result.storage_state_path
       },
       null,
       2

@@ -95,6 +95,9 @@ test('writeExecutionArtifact writes machine-readable file', async () => {
         ats: 'greenhouse',
         extracted_form_path: '/tmp/extracted.json',
         answer_plan_path: '/tmp/plan.json',
+        current_url: 'https://job-boards.greenhouse.io/example/jobs/12345',
+        headless: true,
+        storage_state_path: null,
         started_at: '2026-03-09T12:00:00.000Z',
         ended_at: '2026-03-09T12:00:10.000Z',
         applied_actions: [],
@@ -111,9 +114,10 @@ test('writeExecutionArtifact writes machine-readable file', async () => {
     );
 
     const content = await readFile(path, 'utf-8');
-    const parsed = JSON.parse(content) as { status: string; notes: string[] };
+    const parsed = JSON.parse(content) as { status: string; notes: string[]; current_url: string };
     expect(parsed.status).toBe('success');
     expect(parsed.notes).toEqual(['ok']);
+    expect(parsed.current_url).toContain('greenhouse');
   } finally {
     await rm(tempDir, { recursive: true, force: true });
   }
@@ -134,6 +138,7 @@ test('mocked dry-run executor produces execution result artifact', async () => {
   expect(result.status).toBe('success');
   expect(result.submit_attempted).toBeFalsy();
   expect(result.applied_actions.length).toBeGreaterThan(0);
+  expect(result.current_url).toContain('greenhouse');
   const content = await readFile(artifactPath, 'utf-8');
   expect(JSON.parse(content).status).toBe('success');
 });

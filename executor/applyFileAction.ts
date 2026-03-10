@@ -38,7 +38,7 @@ export async function applyFileAction(page: import('playwright').Page, field: Ex
 
   const { locator } = await resolveFieldLocator(page, field);
   await locator.setInputFiles(path).catch((error) => {
-    throw new ExecutorError('upload_failed', 'Failed to upload file', field.field_id, {
+    throw new ExecutorError('upload_widget_bind_failed', 'Failed to bind uploaded file into widget', field.field_id, {
       filePath: path,
       error: error instanceof Error ? error.message : String(error)
     });

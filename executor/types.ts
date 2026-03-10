@@ -7,6 +7,11 @@ export type ExecutionFailureCode =
   | 'unsupported_field_type'
   | 'verification_failed'
   | 'upload_failed'
+  | 'navigation_failed'
+  | 'session_state_invalid'
+  | 'live_field_not_found'
+  | 'live_verification_failed'
+  | 'upload_widget_bind_failed'
   | 'submit_blocked_by_policy'
   | 'submit_failed';
 
@@ -29,6 +34,9 @@ export interface ExecutionResultArtifact {
   ats: AtsType;
   extracted_form_path: string;
   answer_plan_path: string;
+  current_url: string | null;
+  headless: boolean;
+  storage_state_path: string | null;
   started_at: string;
   ended_at: string;
   applied_actions: ExecutionActionResult[];
@@ -57,6 +65,7 @@ export interface ExecutorOptions {
   headless?: boolean;
   timeoutMs?: number;
   storageStatePath?: string;
+  cdpEndpoint?: string;
   traceEnabled?: boolean;
 }
 
