@@ -5,7 +5,7 @@ async function main(): Promise<void> {
   const storageStatePath = process.argv[3];
 
   if (!url || !storageStatePath) {
-    throw new Error('Usage: npm run scrape:linkedin -- <linkedin-job-url> <storage-state.json>');
+    throw new Error('Usage: npm run example:scrape:linkedin -- <linkedin-job-url> <storage-state.json>');
   }
 
   const output = await scrapeForm({

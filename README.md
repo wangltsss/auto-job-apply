@@ -20,10 +20,19 @@ TypeScript + Playwright project focused on deterministic job-application automat
 ```bash
 npm install
 npm run setup:device
-npm run scrape -- "https://jobs.example.com/apply"
-npm run answer-plan
-npm run executor -- --mock
+npm run tool:scrape -- --url "https://jobs.example.com/apply"
+npm run tool:answer-plan -- --form-artifact ./artifacts/forms/<form>.json
+npm run tool:execute -- --form-artifact ./artifacts/forms/<form>.json --answer-plan-artifact ./artifacts/answer-plans/<plan>.json --mock
+npm run tool:pipeline -- --url "https://jobs.example.com/apply" --mode full --dry-run
 ```
+
+## Stable entrypoints
+- `npm run tool:scrape`
+- `npm run tool:answer-plan`
+- `npm run tool:execute`
+- `npm run tool:pipeline`
+
+The `example:*` scripts are development demos and fixtures, not the stable integration interface.
 
 ## Contracts
 - Extracted form schema: `playwright/schemas/form.schema.json`

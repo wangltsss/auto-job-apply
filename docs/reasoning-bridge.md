@@ -28,12 +28,12 @@ The reasoning bridge is the strict middle layer between scraper output and futur
 
 ## Mocked local run
 ```bash
-npm run answer-plan
+npm run example:answer-plan
 ```
 
 Custom files:
 ```bash
-npm run answer-plan -- ./artifacts/forms/<file>.json ./examples/fixtures/valid-openclaw-response.json
+npm run example:answer-plan -- ./artifacts/forms/<file>.json ./examples/fixtures/valid-openclaw-response.json
 ```
 
 The default example uses a mock OpenClaw response fixture so you can test the bridge without a live model call.

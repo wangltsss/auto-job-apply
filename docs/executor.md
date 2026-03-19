@@ -44,15 +44,15 @@ It deterministically applies actions and records execution results.
 ## CLI example
 Real Greenhouse dry-run:
 ```bash
-npm run executor -- ./artifacts/forms/<form>.json ./artifacts/answer-plans/<plan>.json --storage-state ./state/linkedin.json --headed
+npm run example:executor -- ./artifacts/forms/<form>.json ./artifacts/answer-plans/<plan>.json --storage-state ./state/linkedin.json --headed
 ```
 
 Mocked dry-run:
 ```bash
-npm run executor -- --mock
+npm run example:executor -- --mock
 ```
 
 Real run with explicit submit attempt:
 ```bash
-npm run executor -- ./artifacts/forms/<form>.json ./artifacts/answer-plans/<plan>.json --storage-state ./state/linkedin.json --submit
+npm run example:executor -- ./artifacts/forms/<form>.json ./artifacts/answer-plans/<plan>.json --storage-state ./state/linkedin.json --submit
 ```

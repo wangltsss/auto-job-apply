@@ -3,7 +3,7 @@ import { scrapeForm } from '../playwright/core/scrapeRunner.js';
 async function main(): Promise<void> {
   const url = process.argv[2];
   if (!url) {
-    throw new Error('Usage: npm run scrape -- <job-application-url> [storage-state.json]');
+    throw new Error('Usage: npm run example:scrape -- <job-application-url> [storage-state.json]');
   }
 
   const storageStatePath = process.argv[3];
