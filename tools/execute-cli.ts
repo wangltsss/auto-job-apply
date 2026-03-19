@@ -1,5 +1,9 @@
 import { parseExecutorCliArgs } from '../executor/cliArgs.js';
 import { runExecution } from '../orchestration/runExecution.js';
+import { buildFailureEnvelope, buildSuccessEnvelope, hasHelpFlag, isDirectExecution, writeJsonLine } from './cliShared.js';
+
+const EXECUTE_CLI_USAGE =
+  'Usage: npm run tool:execute -- --form-artifact <path> --answer-plan-artifact <path> [--storage-state <path>] [--headed] [--headless] [--submit] [--dry-run] [--trace] [--no-trace] [--mock] [--cdp-endpoint <url>]';
 
 function parseArgs(argv: string[]): ReturnType<typeof parseExecutorCliArgs> {
   const normalized: string[] = [];
@@ -27,9 +31,18 @@ function parseArgs(argv: string[]): ReturnType<typeof parseExecutorCliArgs> {
   return parseExecutorCliArgs(normalized);
 }
 
-async function main(): Promise<void> {
+export async function runExecuteCli(
+  argv: string[],
+  stdout: NodeJS.WriteStream = process.stdout,
+  stderr: NodeJS.WriteStream = process.stderr
+): Promise<number> {
+  if (hasHelpFlag(argv)) {
+    stdout.write(`${EXECUTE_CLI_USAGE}\n`);
+    return 0;
+  }
+
   try {
-    const args = parseArgs(process.argv.slice(2));
+    const args = parseArgs(argv);
     const output = await runExecution({
       extractedFormArtifactPath: args.extractedFormPath,
       answerPlanArtifactPath: args.answerPlanPath,
@@ -42,18 +55,23 @@ async function main(): Promise<void> {
       mockMode: args.mockMode
     });
 
-    process.stdout.write(
-      `${JSON.stringify({
-        ok: true,
-        stage: output.stage,
-        execution_result_artifact_path: output.executionResultArtifactPath,
+    writeJsonLine(
+      buildSuccessEnvelope('execute', { execution_result_artifact_path: output.executionResultArtifactPath }, {
         execution_status: output.executionStatus
-      })}\n`
+      }),
+      stdout
     );
+    return 0;
   } catch (error) {
-    process.stderr.write(`${JSON.stringify({ ok: false, error: error instanceof Error ? error.message : String(error) })}\n`);
-    process.exitCode = 1;
+    writeJsonLine(buildFailureEnvelope(error, 'execute'), stderr);
+    return 1;
   }
 }
 
-main();
+async function main(): Promise<void> {
+  process.exitCode = await runExecuteCli(process.argv.slice(2));
+}
+
+if (isDirectExecution(import.meta.url, process.argv[1])) {
+  void main();
+}

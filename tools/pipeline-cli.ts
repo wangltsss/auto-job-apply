@@ -1,134 +1,19 @@
-import { readFile } from 'node:fs/promises';
 import { runPipeline } from '../orchestration/pipeline.js';
-import type { PipelineMode } from '../orchestration/types.js';
+import { buildFailureEnvelope, buildSuccessEnvelope, hasHelpFlag, isDirectExecution, writeJsonLine } from './cliShared.js';
+import { parsePipelineCliArgs, PIPELINE_CLI_USAGE } from './pipelineCliArgs.js';
 
-interface Args {
-  url: string;
-  mode: PipelineMode;
-  storageStatePath?: string;
-  headless: boolean;
-  traceEnabled: boolean;
-  dryRun: boolean;
-  submit: boolean;
-  cdpEndpoint?: string;
-  mockOpenClawRawOutputPath?: string;
-  mockExecution: boolean;
-  applicantProfile: Record<string, unknown>;
-}
-
-async function parseArgs(argv: string[]): Promise<Args> {
-  let url = '';
-  let mode: PipelineMode = 'full';
-  let storageStatePath: string | undefined;
-  let headless = true;
-  let traceEnabled = true;
-  let dryRun = true;
-  let submit = false;
-  let cdpEndpoint: string | undefined;
-  let mockOpenClawRawOutputPath: string | undefined;
-  let mockExecution = false;
-  let profilePath: string | undefined;
-
-  for (let i = 0; i < argv.length; i += 1) {
-    const token = argv[i];
-    if (!token) continue;
-
-    if (token === '--url') {
-      const value = argv[++i];
-      if (!value) throw new Error('Missing value for --url');
-      url = value;
-      continue;
-    }
-    if (token === '--mode') {
-      const value = argv[++i] as PipelineMode | undefined;
-      if (!value || !['scrape', 'scrape-answer-plan', 'full'].includes(value)) {
-        throw new Error('Invalid --mode, expected scrape|scrape-answer-plan|full');
-      }
-      mode = value;
-      continue;
-    }
-    if (token === '--storage-state') {
-      const value = argv[++i];
-      if (!value) throw new Error('Missing value for --storage-state');
-      storageStatePath = value;
-      continue;
-    }
-    if (token === '--profile') {
-      const value = argv[++i];
-      if (!value) throw new Error('Missing value for --profile');
-      profilePath = value;
-      continue;
-    }
-    if (token === '--mock-response') {
-      const value = argv[++i];
-      if (!value) throw new Error('Missing value for --mock-response');
-      mockOpenClawRawOutputPath = value;
-      continue;
-    }
-    if (token === '--cdp-endpoint') {
-      const value = argv[++i];
-      if (!value) throw new Error('Missing value for --cdp-endpoint');
-      cdpEndpoint = value;
-      continue;
-    }
-    if (token === '--headed') {
-      headless = false;
-      continue;
-    }
-    if (token === '--headless') {
-      headless = true;
-      continue;
-    }
-    if (token === '--trace') {
-      traceEnabled = true;
-      continue;
-    }
-    if (token === '--no-trace') {
-      traceEnabled = false;
-      continue;
-    }
-    if (token === '--submit') {
-      submit = true;
-      dryRun = false;
-      continue;
-    }
-    if (token === '--dry-run') {
-      dryRun = true;
-      submit = false;
-      continue;
-    }
-    if (token === '--mock-execution') {
-      mockExecution = true;
-      continue;
-    }
-
-    throw new Error(`Unknown flag: ${token}`);
+export async function runPipelineCli(
+  argv: string[],
+  stdout: NodeJS.WriteStream = process.stdout,
+  stderr: NodeJS.WriteStream = process.stderr
+): Promise<number> {
+  if (hasHelpFlag(argv)) {
+    stdout.write(`${PIPELINE_CLI_USAGE}\n`);
+    return 0;
   }
 
-  if (!url) {
-    throw new Error('Missing required --url');
-  }
-
-  const applicantProfile = profilePath ? (JSON.parse(await readFile(profilePath, 'utf-8')) as Record<string, unknown>) : {};
-
-  return {
-    url,
-    mode,
-    storageStatePath,
-    headless,
-    traceEnabled,
-    dryRun,
-    submit,
-    cdpEndpoint,
-    mockOpenClawRawOutputPath,
-    mockExecution,
-    applicantProfile
-  };
-}
-
-async function main(): Promise<void> {
   try {
-    const args = await parseArgs(process.argv.slice(2));
+    const args = await parsePipelineCliArgs(argv);
 
     const out = await runPipeline({
       mode: args.mode,
@@ -144,20 +29,53 @@ async function main(): Promise<void> {
       mockExecution: args.mockExecution
     });
 
-    process.stdout.write(
-      `${JSON.stringify({
-        ok: true,
-        pipeline_artifact_path: out.pipelineArtifactPath,
-        final_status: out.artifact.final_status,
-        scrape_artifact_path: out.artifact.scrape_artifact_path,
-        answer_plan_artifact_path: out.artifact.answer_plan_artifact_path,
-        execution_result_artifact_path: out.artifact.execution_result_artifact_path
-      })}\n`
+    if (out.artifact.final_status !== 'success') {
+      writeJsonLine(
+        {
+          ok: false,
+          stage: 'pipeline',
+          code: out.artifact.failure_code ?? 'pipeline_failed',
+          error: `Pipeline finished with status ${out.artifact.final_status}`,
+          details: {
+            pipeline_artifact_path: out.pipelineArtifactPath,
+            failure_stage: out.artifact.failure_stage,
+            notes: out.artifact.notes
+          }
+        },
+        stderr
+      );
+      return 1;
+    }
+
+    writeJsonLine(
+      buildSuccessEnvelope(
+        'pipeline',
+        {
+          pipeline_artifact_path: out.pipelineArtifactPath,
+          scrape_artifact_path: out.artifact.scrape_artifact_path,
+          answer_plan_artifact_path: out.artifact.answer_plan_artifact_path,
+          execution_result_artifact_path: out.artifact.execution_result_artifact_path
+        },
+        {
+          final_status: out.artifact.final_status,
+          stages_run: out.artifact.stages_run,
+          failure_stage: out.artifact.failure_stage,
+          failure_code: out.artifact.failure_code
+        }
+      ),
+      stdout
     );
+    return 0;
   } catch (error) {
-    process.stderr.write(`${JSON.stringify({ ok: false, error: error instanceof Error ? error.message : String(error) })}\n`);
-    process.exitCode = 1;
+    writeJsonLine(buildFailureEnvelope(error, 'pipeline'), stderr);
+    return 1;
   }
 }
 
-main();
+async function main(): Promise<void> {
+  process.exitCode = await runPipelineCli(process.argv.slice(2));
+}
+
+if (isDirectExecution(import.meta.url, process.argv[1])) {
+  void main();
+}
