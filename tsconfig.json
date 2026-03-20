@@ -16,6 +16,7 @@
   },
   "include": [
     "playwright/**/*.ts",
+    "job-pool/**/*.ts",
     "reasoning/**/*.ts",
     "executor/**/*.ts",
     "orchestration/**/*.ts",

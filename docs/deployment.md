@@ -60,6 +60,12 @@ Scrape only:
 npm run tool:scrape -- --url "https://jobs.example.test/apply/0001"
 ```
 
+Job-pool ingest:
+
+```bash
+npm run tool:job-pool -- ingest --url "https://jobs.example.test/apply/0001"
+```
+
 Pipeline dry-run (safe default):
 
 ```bash

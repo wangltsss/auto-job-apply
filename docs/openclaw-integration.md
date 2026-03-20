@@ -6,6 +6,8 @@ Use these local tool commands as stable entrypoints for OpenClaw.
 - `npm run tool:scrape -- --url <job_url> [--storage-state <path>] [--headed] [--no-trace]`
 - `npm run tool:answer-plan -- --form-artifact <path> [--profile <path>] [--mock-response <path>]`
 - `npm run tool:execute -- --form-artifact <path> --answer-plan-artifact <path> [--storage-state <path>] [--headed] [--submit] [--cdp-endpoint <url>] [--mock]`
+- `npm run tool:job-pool -- ingest (--url <job_url> | --input-file <path>) [--source-type manual|automated] [--store-path <path>]`
+- `npm run tool:job-pool -- list [--status <status>] [--source-type manual|automated] [--limit <n>] [--store-path <path>]`
 - `npm run tool:pipeline -- --url <job_url> [--mode scrape|scrape-answer-plan|full] [--storage-state <path>] [--headed] [--mock-response <path>] [--mock-execution]`
 
 ## Stdout contract
