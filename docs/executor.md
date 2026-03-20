@@ -5,6 +5,7 @@ The executor consumes two validated artifacts:
 2. Answer plan artifact (`artifacts/answer-plans/*.json`)
 
 It deterministically applies actions and records execution results.
+It also appends durable attempt/success/failure records to the application ledger.
 
 ## Design principles
 - No reasoning or answer generation.
@@ -56,3 +57,13 @@ Real run with explicit submit attempt:
 ```bash
 npm run example:executor -- ./artifacts/forms/<form>.json ./artifacts/answer-plans/<plan>.json --storage-state ./state/linkedin.json --submit
 ```
+
+## Ledger output
+Executor runs append records to:
+- `artifacts/application-ledger/ledger.json`
+
+The ledger stores:
+- execution attempts
+- successful applications
+- failed attempts
+- answer summaries derived from the validated answer plan

@@ -1,6 +1,7 @@
 import { mkdir } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { chromium } from 'playwright';
+import { recordExecutionOutcome } from '../application-ledger/recordExecutionOutcome.js';
 import type {
   AnswerPlanItem,
   FileActionAnswer,
@@ -33,7 +34,7 @@ export async function runExecutor(
   extractedFormPath: string,
   answerPlanPath: string,
   options: ExecutorOptions = {}
-): Promise<{ result: ExecutionResultArtifact; artifactPath: string }> {
+): Promise<{ result: ExecutionResultArtifact; artifactPath: string; ledgerStorePath: string }> {
   const dryRun = options.dryRun ?? true;
   const attemptSubmit = options.attemptSubmit ?? false;
   const mockMode = options.mockMode ?? false;
@@ -221,7 +222,16 @@ export async function runExecutor(
   };
 
   const artifactPath = await writeExecutionArtifact(result);
-  return { result, artifactPath };
+  const ledgerOut = await recordExecutionOutcome({
+    extractedForm: inputs.extractedForm,
+    extractedFormPath,
+    answerPlan: inputs.answerPlan,
+    answerPlanPath,
+    executionArtifactPath: artifactPath,
+    result
+  }, options.ledgerStorePath);
+
+  return { result, artifactPath, ledgerStorePath: ledgerOut.ledgerStorePath };
 }
 
 function mapLiveFailure(code: ExecutionFailureCode): ExecutionFailureCode {

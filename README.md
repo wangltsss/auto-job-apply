@@ -30,6 +30,7 @@ npm run tool:pipeline -- --url "https://jobs.example.com/apply" --mode full --dr
 - `npm run tool:scrape`
 - `npm run tool:answer-plan`
 - `npm run tool:execute`
+- `npm run tool:job-pool`
 - `npm run tool:pipeline`
 
 The `example:*` scripts are development demos and fixtures, not the stable integration interface.
@@ -44,4 +45,5 @@ The `example:*` scripts are development demos and fixtures, not the stable integ
 - Answer plan contract: `docs/answer-plan-contract.md`
 - Reasoning bridge: `docs/reasoning-bridge.md`
 - Executor: `docs/executor.md`
+- Application ledger: `docs/application-ledger.md`
 - Deployment: `docs/deployment.md`

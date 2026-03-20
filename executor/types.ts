@@ -67,6 +67,7 @@ export interface ExecutorOptions {
   storageStatePath?: string;
   cdpEndpoint?: string;
   traceEnabled?: boolean;
+  ledgerStorePath?: string;
 }
 
 export interface LocatorResolution {
