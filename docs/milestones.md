@@ -4,7 +4,7 @@
 This document maps implementation milestones for the autonomous Clawdbot system defined in [autonomous-clawdbot-design.md](/home/shawn/Documents/auto-apply/docs/autonomous-clawdbot-design.md) and identifies the current project position.
 
 ## Current Position
-The project is currently at `M5: Application Ledger and Provenance`, with `M6` and beyond still pending.
+The project is currently at `M6: Run Controller and Strategic Retries`, with `M7` and beyond still pending.
 
 The following capabilities are implemented today:
 - deterministic ATS form scraping
@@ -173,12 +173,10 @@ Required outcomes:
 - duplicate concurrent processing is prevented
 - run completion semantics are based on successful applications
 
-Status: `Not Started`
+Status: `Complete`
 
 Current gap:
-- the current pipeline processes one explicit URL, not a pool-backed run
-- no strategic retry manager exists across job attempts
-- no success-targeted run controller exists
+- none
 
 ## M7: Clawdbot Reasoning Participation
 Objective: incorporate Clawdbot as the answer-inference participant for underspecified questionnaire fields while preserving deterministic execution.
@@ -237,7 +235,7 @@ Current gap:
 | M3 | Unified Tooling and Pipeline Invocation | Complete |
 | M4 | Job Pool and Ingestion Layer | Complete |
 | M5 | Application Ledger and Provenance | Complete |
-| M6 | Run Controller and Strategic Retries | Not Started |
+| M6 | Run Controller and Strategic Retries | Complete |
 | M7 | Clawdbot Reasoning Participation | Not Started |
 | M8 | Published Package and OpenClaw Skill Surface | Not Started |
 | M9 | Incident Handling and Operational Hardening | Not Started |
@@ -250,4 +248,4 @@ Relative to the autonomous system design, the project now has:
 - a durable job pool
 - a complete first-pass ledger layer with provenance and clarification tracking
 
-The next milestone boundary is `M6`. That is the point where the repository stops being a collection of durable subsystems and becomes a pool-backed autonomous execution system.
+The next milestone boundary is `M7`. That is the point where the repository begins to formalize Clawdbot reasoning participation and uncertainty-gated answer handling.

@@ -232,6 +232,65 @@ The repository runtime owns:
 
 This boundary is required to prevent low-level runtime behavior from devolving into unstable agent-driven browser control.
 
+### Operational Contract
+For a run to execute successfully, Clawdbot and the repository runtime must each satisfy a defined set of obligations.
+
+#### Clawdbot Obligations
+Clawdbot must:
+- initiate the run through the MCP integration surface
+- provide the target success count for the run
+- ensure that eligible postings have already been inserted into the job pool
+- provide policy context required by the reasoning stage
+- provide access to known applicant information, including profile facts and document-backed facts
+- infer answers for underspecified questionnaire fields when deterministic known facts are insufficient
+- consume the structured run result and final report outputs
+- surface unresolved clarification items to the user when the runtime records `user_clarification_required` answers
+
+Clawdbot must not:
+- control browser actions directly
+- select low-level interaction strategies such as locators, click order, or widget handling
+- apply its own independent strategic retry loop for a failed application attempt that the runtime has already classified
+
+#### Repository Runtime Obligations
+The repository runtime must:
+- claim one job at a time from the job pool
+- execute the deterministic single-job pipeline for the claimed posting
+- extract the live form and produce the extracted-form artifact
+- validate answer-plan output before execution
+- stop before execution when the answer-plan status is not `proceed`
+- execute validated answers deterministically in the browser
+- persist artifacts, job-pool state transitions, ledger entries, and run records
+- classify failures according to the runtime retry policy
+- schedule bounded strategic retries when a failure is classified as retryable
+- stop the run when the target success count is reached or the pool is exhausted
+
+The repository runtime must not:
+- invent applicant facts that are not present in known data or Clawdbot inference output
+- bypass answer-plan validation
+- continue executing a quarantined or not-eligible answer plan
+- allow more than one active run to process the same workspace stores concurrently
+
+#### Preconditions For Run Execution
+A run may begin only when all of the following are true:
+- the job pool contains at least one eligible posting in a claimable state
+- browser execution prerequisites are available, including any required session state for the target site
+- applicant profile and document context required for reasoning are available to Clawdbot
+- the MCP integration surface can invoke repository operations and receive machine-readable results
+
+If any of these conditions are not met, the system must fail explicitly rather than attempting a degraded autonomous run.
+
+#### End-To-End Execution Sequence
+The end-to-end contract between Clawdbot and the repository runtime is:
+1. Clawdbot initiates a run and supplies the target success count and policy context.
+2. The runtime creates the run record and claims one job from the pool.
+3. The runtime extracts the application form and prepares reasoning input.
+4. Clawdbot provides answer inference for fields not resolved directly from known facts.
+5. The runtime validates the answer plan and either stops on non-`proceed` status or executes it deterministically.
+6. The runtime persists artifacts, ledger data, and job state.
+7. The runtime either schedules a strategic retry or moves to the next claimable posting.
+8. The runtime terminates on success-target completion or pool exhaustion.
+9. Clawdbot consumes the final run result and presents unresolved clarification items to the user.
+
 ## Data Contracts
 
 ### Job Posting Record
@@ -369,6 +428,41 @@ Strategic retries apply only to failures classified as retryable. Strategic retr
 - optional site-specific cool-down behavior
 
 The system must not allow independent strategic retry scheduling by both Clawdbot and the runtime for the same failed attempt.
+
+### Initial Strategic Retry Policy
+The initial strategic retry policy for the current runtime failure codes is:
+
+| Failure code | Stage | Primary category | Retryable |
+| --- | --- | --- | --- |
+| `scrape_failed` | `scrape` | `site_change` or `network` | `true` |
+| `missing_extracted_form_artifact` | `answer_plan` | `data` | `false` |
+| `invalid_extracted_form_artifact` | `answer_plan` | `data` | `false` |
+| `openclaw_invocation_failure` | `answer_plan` | `reasoning` | `true` |
+| `malformed_openclaw_json` | `answer_plan` | `reasoning` | `true` |
+| `answer_plan_schema_validation_failed` | `answer_plan` | `reasoning` | `true` |
+| `answer_plan_status_quarantine` | `answer_plan` | `policy` | `false` |
+| `answer_plan_status_not_eligible` | `answer_plan` | `policy` | `false` |
+| `field_not_found` | `execute` | `site_change` | `false` |
+| `locator_resolution_failed` | `execute` | `transient_ui` | `true` |
+| `unsupported_field_type` | `execute` | `unsupported` | `false` |
+| `verification_failed` | `execute` | `transient_ui` | `true` |
+| `upload_failed` | `execute` | `transient_ui` | `true` |
+| `navigation_failed` | `execute` | `network` | `true` |
+| `session_state_invalid` | `execute` | `session` | `false` |
+| `live_field_not_found` | `execute` | `site_change` | `false` |
+| `live_verification_failed` | `execute` | `transient_ui` | `true` |
+| `upload_widget_bind_failed` | `execute` | `transient_ui` | `true` |
+| `submit_blocked_by_policy` | `execute` | `policy` | `false` |
+| `submit_failed` | `execute` | `network` or `site_change` | `true` |
+
+The initial controller policy is:
+- each full pipeline run against a claimed job consumes one strategic attempt
+- scrape, answer-plan, and execute failures each count as a strategic attempt
+- the maximum strategic attempt count per job is `3`
+- the second attempt is eligible immediately
+- the third attempt is delayed by `5` minutes
+- after the maximum attempt count is exhausted, the job is marked `failed_terminal`
+- `attempting` jobs are not claimable by another active run
 
 ## Logging and Audit
 
