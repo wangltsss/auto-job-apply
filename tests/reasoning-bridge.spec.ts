@@ -1,10 +1,43 @@
 import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { expect, test } from '@playwright/test';
+import { buildOpenClawInvocation } from '../reasoning/runOpenClaw.js';
 import { buildReasoningInput, readExtractedFormArtifact } from '../reasoning/buildReasoningInput.js';
 import { enforceAnswerPlanPolicy } from '../reasoning/enforceAnswerPlanPolicy.js';
 import { ReasoningBridgeError } from '../reasoning/errors.js';
 import { parseAndValidateAnswerPlan } from '../reasoning/parseAnswerPlan.js';
+
+test('buildOpenClawInvocation defaults to agent message mode', () => {
+  expect(buildOpenClawInvocation('hello')).toEqual({
+    command: 'openclaw',
+    args: ['agent', '--local', '--plain', '--message', 'hello'],
+    stdinPrompt: false
+  });
+});
+
+test('buildOpenClawInvocation supports prompt placeholders and stdin override', () => {
+  expect(
+    buildOpenClawInvocation('hello', {
+      command: 'openclaw',
+      args: ['message', '{prompt}', '--json']
+    })
+  ).toEqual({
+    command: 'openclaw',
+    args: ['message', 'hello', '--json'],
+    stdinPrompt: false
+  });
+
+  expect(
+    buildOpenClawInvocation('hello', {
+      args: ['agent', '--stdin'],
+      stdinPrompt: true
+    })
+  ).toEqual({
+    command: 'openclaw',
+    args: ['agent', '--stdin'],
+    stdinPrompt: true
+  });
+});
 
 test('buildReasoningInput keeps only reasoning-relevant field properties', async () => {
   const extracted = await readExtractedFormArtifact(resolve('examples/fixtures/extracted-form.sample.json'));

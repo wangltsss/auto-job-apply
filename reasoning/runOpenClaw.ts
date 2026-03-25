@@ -2,9 +2,33 @@ import { spawn } from 'node:child_process';
 import { ReasoningBridgeError } from './errors.js';
 import type { OpenClawRunResult, OpenClawRunnerOptions } from './types.js';
 
-export async function runOpenClaw(prompt: string, options: OpenClawRunnerOptions = {}): Promise<OpenClawRunResult> {
+export interface OpenClawInvocation {
+  command: string;
+  args: string[];
+  stdinPrompt: boolean;
+}
+
+export function buildOpenClawInvocation(prompt: string, options: OpenClawRunnerOptions = {}): OpenClawInvocation {
   const command = options.command ?? 'openclaw';
-  const args = options.args ?? ['run', '--stdin'];
+
+  if (options.args) {
+    return {
+      command,
+      args: options.args.map((arg) => (arg === '{prompt}' ? prompt : arg)),
+      stdinPrompt: options.stdinPrompt ?? options.args.includes('--stdin')
+    };
+  }
+
+  return {
+    command,
+    args: ['agent', '--local', '--plain', '--message', prompt],
+    stdinPrompt: false
+  };
+}
+
+export async function runOpenClaw(prompt: string, options: OpenClawRunnerOptions = {}): Promise<OpenClawRunResult> {
+  const invocation = buildOpenClawInvocation(prompt, options);
+  const { command, args, stdinPrompt } = invocation;
   const timeoutMs = options.timeoutMs ?? 60_000;
 
   return new Promise<OpenClawRunResult>((resolve, reject) => {
@@ -65,7 +89,9 @@ export async function runOpenClaw(prompt: string, options: OpenClawRunnerOptions
       resolve({ stdout, stderr, exitCode });
     });
 
-    child.stdin.write(prompt);
+    if (stdinPrompt) {
+      child.stdin.write(prompt);
+    }
     child.stdin.end();
   });
 }
