@@ -65,7 +65,13 @@ test('parseJobPoolCliArgs parses list arguments and validates bad input', () => 
     storePath: undefined
   });
 
-  expect(() => parseJobPoolCliArgs(['bogus'])).toThrow('Missing or invalid job-pool command, expected ingest|list');
+  expect(parseJobPoolCliArgs(['get', '--job-id', 'job_123', '--store-path', './jobs.json'])).toEqual({
+    command: 'get',
+    jobId: 'job_123',
+    storePath: './jobs.json'
+  });
+
+  expect(() => parseJobPoolCliArgs(['bogus'])).toThrow('Missing or invalid job-pool command, expected ingest|list|get');
   expect(() => parseJobPoolCliArgs(['ingest'])).toThrow('Missing required --url or --input-file');
   expect(() => parseJobPoolCliArgs(['ingest', '--url', 'https://jobs.example.test/apply/123', '--input-file', './jobs.json'])).toThrow(
     'Use only one of --url or --input-file'
@@ -105,7 +111,7 @@ test('runJobPoolCli ingests and lists jobs with standardized envelopes', async (
     const ingestResult = JSON.parse(ingestStreams.stdout.toString()) as {
       ok: boolean;
       stage: string;
-      result: { command: string; ingested_count: number; duplicate_count: number; jobs: Array<{ status: string }> };
+      result: { command: string; ingested_count: number; duplicate_count: number; jobs: Array<{ job_id: string; status: string }> };
     };
     expect(ingestResult.ok).toBeTruthy();
     expect(ingestResult.stage).toBe('job_pool');
@@ -128,6 +134,25 @@ test('runJobPoolCli ingests and lists jobs with standardized envelopes', async (
     expect(listResult.result.command).toBe('list');
     expect(listResult.result.count).toBe(1);
     expect(listResult.result.jobs[0]?.title).toBe('Engineer');
+
+    const getStreams = makeStreams();
+    const getCode = await runJobPoolCli(
+      ['get', '--job-id', ingestResult.result.jobs[0]?.job_id ?? '', '--store-path', storePath],
+      getStreams.stdout as never,
+      getStreams.stderr as never
+    );
+
+    expect(getCode).toBe(0);
+    const getResult = JSON.parse(getStreams.stdout.toString()) as {
+      ok: boolean;
+      stage: string;
+      result: { command: string; found: boolean; job: { title: string | null } | null };
+    };
+    expect(getResult.ok).toBeTruthy();
+    expect(getResult.stage).toBe('job_pool');
+    expect(getResult.result.command).toBe('get');
+    expect(getResult.result.found).toBeTruthy();
+    expect(getResult.result.job?.title).toBe('Engineer');
   } finally {
     await rm(tempDir, { recursive: true, force: true });
   }

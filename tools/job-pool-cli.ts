@@ -1,5 +1,5 @@
 import { readFile } from 'node:fs/promises';
-import { ingestJobs, listJobs } from '../job-pool/index.js';
+import { getJob, ingestJobs, listJobs } from '../job-pool/index.js';
 import type { IngestJobInput } from '../job-pool/types.js';
 import { buildFailureEnvelope, buildSuccessEnvelope, hasHelpFlag, isDirectExecution, writeJsonLine } from './cliShared.js';
 import { JOB_POOL_CLI_USAGE, parseJobPoolCliArgs } from './jobPoolCliArgs.js';
@@ -66,6 +66,23 @@ export async function runJobPoolCli(
         stdout
       );
       return 0;
+    }
+
+    if (args.command === 'get') {
+      const job = await getJob(args.jobId, args.storePath);
+      writeJsonLine(
+        buildSuccessEnvelope(
+          'job_pool',
+          {},
+          {
+            command: 'get',
+            found: Boolean(job),
+            job
+          }
+        ),
+        stdout
+      );
+      return job ? 0 : 1;
     }
 
     const jobs = await listJobs(

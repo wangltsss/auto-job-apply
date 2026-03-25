@@ -1,6 +1,6 @@
 import type { JobSourceType, JobStatus } from '../job-pool/types.js';
 
-export type JobPoolCommand = 'ingest' | 'list';
+export type JobPoolCommand = 'ingest' | 'list' | 'get';
 
 export interface JobPoolIngestCliArgs {
   command: 'ingest';
@@ -25,17 +25,24 @@ export interface JobPoolListCliArgs {
   storePath?: string;
 }
 
-export type JobPoolCliArgs = JobPoolIngestCliArgs | JobPoolListCliArgs;
+export interface JobPoolGetCliArgs {
+  command: 'get';
+  jobId: string;
+  storePath?: string;
+}
+
+export type JobPoolCliArgs = JobPoolIngestCliArgs | JobPoolListCliArgs | JobPoolGetCliArgs;
 
 export const JOB_POOL_CLI_USAGE = `Usage:
   npm run tool:job-pool -- ingest (--url <job_url> | --input-file <path>) [--source-type manual|automated] [--apply-url <url>] [--company <name>] [--title <title>] [--location <location>] [--employment-type <type>] [--posted-at <iso_date>] [--notes <text>] [--store-path <path>]
-  npm run tool:job-pool -- list [--status <status>] [--source-type manual|automated] [--limit <n>] [--store-path <path>]`;
+  npm run tool:job-pool -- list [--status <status>] [--source-type manual|automated] [--limit <n>] [--store-path <path>]
+  npm run tool:job-pool -- get --job-id <id> [--store-path <path>]`;
 
 function parseCommand(token: string | undefined): JobPoolCommand {
-  if (token === 'ingest' || token === 'list') {
+  if (token === 'ingest' || token === 'list' || token === 'get') {
     return token;
   }
-  throw new Error('Missing or invalid job-pool command, expected ingest|list');
+  throw new Error('Missing or invalid job-pool command, expected ingest|list|get');
 }
 
 export function parseJobPoolCliArgs(argv: string[]): JobPoolCliArgs {
@@ -150,6 +157,41 @@ export function parseJobPoolCliArgs(argv: string[]): JobPoolCliArgs {
       employmentType,
       postedAt,
       notes,
+      storePath
+    };
+  }
+
+  if (command === 'get') {
+    let jobId: string | undefined;
+    let storePath: string | undefined;
+
+    for (let i = 1; i < argv.length; i += 1) {
+      const token = argv[i];
+      if (!token) continue;
+
+      if (token === '--job-id') {
+        const value = argv[++i];
+        if (!value) throw new Error('Missing value for --job-id');
+        jobId = value;
+        continue;
+      }
+      if (token === '--store-path') {
+        const value = argv[++i];
+        if (!value) throw new Error('Missing value for --store-path');
+        storePath = value;
+        continue;
+      }
+
+      throw new Error(`Unknown flag: ${token}`);
+    }
+
+    if (!jobId) {
+      throw new Error('Missing required --job-id');
+    }
+
+    return {
+      command,
+      jobId,
       storePath
     };
   }
