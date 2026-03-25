@@ -59,6 +59,7 @@ export interface ExecutionInputs {
 }
 
 export interface ExecutorOptions {
+  jobId?: string;
   dryRun?: boolean;
   attemptSubmit?: boolean;
   mockMode?: boolean;

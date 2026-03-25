@@ -228,7 +228,8 @@ export async function runExecutor(
     answerPlan: inputs.answerPlan,
     answerPlanPath,
     executionArtifactPath: artifactPath,
-    result
+    result,
+    jobId: options.jobId
   }, options.ledgerStorePath);
 
   return { result, artifactPath, ledgerStorePath: ledgerOut.ledgerStorePath };

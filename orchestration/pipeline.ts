@@ -12,6 +12,7 @@ export async function runPipeline(options: PipelineRunOptions, deps: Partial<Orc
   const stagesRun: PipelineStage[] = [];
   let scrapeArtifactPath: string | null = null;
   let answerPlanArtifactPath: string | null = null;
+  let answerPlanStatus: 'proceed' | 'quarantine' | 'not_eligible' | null = null;
   let executionResultArtifactPath: string | null = null;
   let failureStage: PipelineStage | null = null;
   let failureCode: string | null = null;
@@ -44,7 +45,16 @@ export async function runPipeline(options: PipelineRunOptions, deps: Partial<Orc
       mockOpenClawRawOutputPath: options.mockOpenClawRawOutputPath
     });
     answerPlanArtifactPath = answerOut.answerPlanArtifactPath;
+    answerPlanStatus = answerOut.answerPlanStatus;
     stagesRun.push('answer_plan');
+
+    if (answerOut.answerPlanStatus !== 'proceed') {
+      failureStage = 'answer_plan';
+      failureCode =
+        answerOut.answerPlanStatus === 'quarantine' ? 'answer_plan_status_quarantine' : 'answer_plan_status_not_eligible';
+      notes.push(`${failureCode}: Pipeline stopped because answer-plan status was ${answerOut.answerPlanStatus}`);
+      return await finalize('error');
+    }
 
     if (mode === 'scrape-answer-plan') {
       notes.push('Pipeline stopped after answer-plan stage by mode configuration.');
@@ -54,6 +64,8 @@ export async function runPipeline(options: PipelineRunOptions, deps: Partial<Orc
     const execOut = await executionRunner({
       extractedFormArtifactPath: scrapeArtifactPath,
       answerPlanArtifactPath,
+      jobId: options.jobId,
+      ledgerStorePath: options.ledgerStorePath,
       storageStatePath: options.storageStatePath,
       headless: options.headless,
       dryRun: options.dryRun ?? true,
@@ -90,10 +102,12 @@ export async function runPipeline(options: PipelineRunOptions, deps: Partial<Orc
     const artifact: PipelineRunArtifact = {
       started_at: startedAt,
       ended_at: nowIso(),
+      job_id: options.jobId ?? null,
       input_url: options.url,
       stages_run: stagesRun,
       scrape_artifact_path: scrapeArtifactPath,
       answer_plan_artifact_path: answerPlanArtifactPath,
+      answer_plan_status: answerPlanStatus,
       execution_result_artifact_path: executionResultArtifactPath,
       final_status: finalStatus,
       failure_stage: failureStage,

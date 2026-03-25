@@ -4,6 +4,8 @@ import type { ExecutionStageOutput, RunExecutionOptions } from './types.js';
 
 export async function runExecution(options: RunExecutionOptions): Promise<ExecutionStageOutput> {
   const output = await runExecutor(options.extractedFormArtifactPath, options.answerPlanArtifactPath, {
+    jobId: options.jobId,
+    ledgerStorePath: options.ledgerStorePath,
     storageStatePath: options.storageStatePath,
     headless: options.headless,
     dryRun: options.dryRun,

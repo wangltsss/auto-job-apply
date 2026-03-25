@@ -112,3 +112,46 @@ test('scrape-only mode runs only scrape stage', async () => {
   expect(out.artifact.answer_plan_artifact_path).toBeNull();
   expect(out.artifact.execution_result_artifact_path).toBeNull();
 });
+
+test('pipeline stops before execution when answer-plan status is quarantine', async () => {
+  const out = await runPipeline(
+    {
+      mode: 'full',
+      url: 'https://jobs.example.test/apply/12345',
+      jobId: 'job_123'
+    },
+    {
+      runScrape: async () => ({
+        stage: 'scrape',
+        scrapeArtifactPath: '/tmp/form.json',
+        scrapeResult: {
+          status: 'success',
+          url: 'https://jobs.example.test/apply/12345',
+          ats: 'greenhouse',
+          page_title: 'Example',
+          current_step: null,
+          form_ready: true,
+          submit_visible: true,
+          submit_enabled: true,
+          fields: [],
+          warnings: [],
+          extracted_at: new Date().toISOString()
+        }
+      }),
+      runAnswerPlan: async () => ({
+        stage: 'answer_plan',
+        answerPlanArtifactPath: '/tmp/plan.json',
+        answerPlanStatus: 'quarantine'
+      }),
+      runExecution: async () => {
+        throw new Error('execution should not run');
+      }
+    }
+  );
+
+  expect(out.artifact.final_status).toBe('error');
+  expect(out.artifact.failure_stage).toBe('answer_plan');
+  expect(out.artifact.failure_code).toBe('answer_plan_status_quarantine');
+  expect(out.artifact.answer_plan_status).toBe('quarantine');
+  expect(out.artifact.execution_result_artifact_path).toBeNull();
+});

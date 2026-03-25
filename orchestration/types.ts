@@ -22,6 +22,8 @@ export interface RunAnswerPlanOptions {
 export interface RunExecutionOptions {
   extractedFormArtifactPath: string;
   answerPlanArtifactPath: string;
+  jobId?: string;
+  ledgerStorePath?: string;
   storageStatePath?: string;
   headless?: boolean;
   dryRun?: boolean;
@@ -34,6 +36,8 @@ export interface RunExecutionOptions {
 export interface PipelineRunOptions {
   mode?: PipelineMode;
   url: string;
+  jobId?: string;
+  ledgerStorePath?: string;
   storageStatePath?: string;
   headless?: boolean;
   traceEnabled?: boolean;
@@ -68,10 +72,12 @@ export interface ExecutionStageOutput {
 export interface PipelineRunArtifact {
   started_at: string;
   ended_at: string;
+  job_id: string | null;
   input_url: string;
   stages_run: PipelineStage[];
   scrape_artifact_path: string | null;
   answer_plan_artifact_path: string | null;
+  answer_plan_status: 'proceed' | 'quarantine' | 'not_eligible' | null;
   execution_result_artifact_path: string | null;
   final_status: 'success' | 'error';
   failure_stage: PipelineStage | null;
