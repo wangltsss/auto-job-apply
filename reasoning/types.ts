@@ -5,6 +5,8 @@ export interface ReasoningPolicyFlags {
   skip_demographic_questions_by_default: boolean;
   do_not_guess_ambiguous_questions: boolean;
   submit_only_if_safe: boolean;
+  minimum_known_profile_confidence: number;
+  minimum_inferred_confidence: number;
 }
 
 export interface ApplicantProfile {
@@ -81,7 +83,8 @@ export type ReasoningBridgeFailureCode =
   | 'invalid_extracted_form_artifact'
   | 'openclaw_invocation_failure'
   | 'malformed_openclaw_json'
-  | 'answer_plan_schema_validation_failed';
+  | 'answer_plan_schema_validation_failed'
+  | 'answer_plan_policy_enforcement_failed';
 
 export interface ReasoningBridgeFailure {
   status: 'error';

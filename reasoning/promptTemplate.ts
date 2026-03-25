@@ -18,8 +18,11 @@ export function buildOpenClawPrompt(input: ReasoningInput): string {
     'AnswerPlan shape required:',
     '{"status","reason","ats","application_url","submit_allowed","answers","ambiguous_fields","notes","generated_at"}',
     'Allowed answer_type values: scalar, option, multi_select, file_action, skip.',
+    'Every answer must include provenance as one of: known_profile, clawdbot_inferred, user_clarification_required.',
     'For file_action, value must include action, file_path, file_kind.',
     'Confidence must be between 0 and 1 for every answer.',
+    'If provenance is user_clarification_required, requires_human_review must be true.',
+    'Honor policy_flags.minimum_known_profile_confidence and policy_flags.minimum_inferred_confidence when deciding whether status can be proceed.',
     '',
     'INPUT_JSON:',
     reasoningJson

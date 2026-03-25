@@ -5,6 +5,7 @@ import { runOpenClaw } from './runOpenClaw.js';
 import { writeAnswerPlanArtifact } from './writeAnswerPlanArtifact.js';
 import { DEFAULT_POLICY_FLAGS, buildReasoningInput, readExtractedFormArtifact } from './buildReasoningInput.js';
 import { ReasoningBridgeError } from './errors.js';
+import { enforceAnswerPlanPolicy } from './enforceAnswerPlanPolicy.js';
 import type {
   ApplicantProfile,
   OpenClawRunnerOptions,
@@ -37,7 +38,8 @@ export async function runReasoningBridge(options: RunReasoningBridgeOptions): Pr
     ? await readFile(options.mockOpenClawRawOutputPath, 'utf-8')
     : (await runOpenClaw(prompt, options.openClaw)).stdout;
 
-  const answerPlan = parseAndValidateAnswerPlan(rawOpenClawOutput);
+  const parsedAnswerPlan = parseAndValidateAnswerPlan(rawOpenClawOutput);
+  const answerPlan = enforceAnswerPlanPolicy(parsedAnswerPlan, policyFlags);
   const answerPlanPath = await writeAnswerPlanArtifact(answerPlan);
 
   return {
@@ -74,6 +76,7 @@ export async function runReasoningBridgeSafe(options: RunReasoningBridgeOptions)
 }
 
 export { buildReasoningInput, DEFAULT_POLICY_FLAGS, readExtractedFormArtifact } from './buildReasoningInput.js';
+export { enforceAnswerPlanPolicy } from './enforceAnswerPlanPolicy.js';
 export { buildOpenClawPrompt } from './promptTemplate.js';
 export { parseAndValidateAnswerPlan } from './parseAnswerPlan.js';
 export { runOpenClaw } from './runOpenClaw.js';

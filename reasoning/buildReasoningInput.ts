@@ -7,7 +7,9 @@ import type { ApplicantProfile, ReasoningBridgeBuildInput, ReasoningFieldInput, 
 export const DEFAULT_POLICY_FLAGS = {
   skip_demographic_questions_by_default: true,
   do_not_guess_ambiguous_questions: true,
-  submit_only_if_safe: true
+  submit_only_if_safe: true,
+  minimum_known_profile_confidence: 0.7,
+  minimum_inferred_confidence: 0.85
 } as const;
 
 export async function readExtractedFormArtifact(artifactPath: string): Promise<ExtractedFormSuccess> {
