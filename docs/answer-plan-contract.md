@@ -22,6 +22,24 @@ This contract defines the output of the reasoning layer (LLM/OpenClaw) after it 
 - `ambiguous_fields[]`: unresolved high-risk or unclear items
 - `notes[]`: execution-oriented notes
 
+## Answer provenance
+Every answer item must declare its provenance:
+- `known_profile`: directly supported by applicant facts already known to OpenClaw
+- `clawdbot_inferred`: inferred by OpenClaw from known applicant context
+- `user_clarification_required`: not safe for autonomous submission without clarification
+
+If provenance is `user_clarification_required`, `requires_human_review` must be `true`.
+
+## Confidence policy
+The reasoning bridge provides explicit confidence thresholds to OpenClaw through policy flags:
+- `minimum_known_profile_confidence`
+- `minimum_inferred_confidence`
+
+If `submit_only_if_safe` is enabled, the runtime quarantines answer plans containing:
+- any answer marked `requires_human_review`
+- any `known_profile` answer below `minimum_known_profile_confidence`
+- any `clawdbot_inferred` answer below `minimum_inferred_confidence`
+
 ## Answer item types
 - `scalar`: freeform scalar (`string | number | boolean`)
 - `option`: single option selection (`string`)

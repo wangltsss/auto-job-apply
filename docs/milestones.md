@@ -4,7 +4,7 @@
 This document maps implementation milestones for the autonomous Clawdbot system defined in [autonomous-clawdbot-design.md](/home/shawn/Documents/auto-apply/docs/autonomous-clawdbot-design.md) and identifies the current project position.
 
 ## Current Position
-The project is currently at `M6: Run Controller and Strategic Retries`, with `M7` and beyond still pending.
+The project is currently at `M7: Clawdbot Reasoning Participation`, with `M8` and beyond still pending.
 
 The following capabilities are implemented today:
 - deterministic ATS form scraping
@@ -188,11 +188,10 @@ Required outcomes:
 - unresolved uncertain answers are surfaced in the final report
 - runtime policy gates submission of low-confidence answers
 
-Status: `Not Started`
+Status: `Complete`
 
 Current gap:
-- current reasoning assumes an answer-plan generator, but does not model provenance classes or uncertainty escalation
-- no explicit Clawdbot integration contract exists yet
+- none
 
 ## M8: Published Package and OpenClaw Skill Surface
 Objective: publish the project as a reusable package, OpenClaw skill, and MCP-integrated tool surface with stable external operations.
@@ -236,7 +235,7 @@ Current gap:
 | M4 | Job Pool and Ingestion Layer | Complete |
 | M5 | Application Ledger and Provenance | Complete |
 | M6 | Run Controller and Strategic Retries | Complete |
-| M7 | Clawdbot Reasoning Participation | Not Started |
+| M7 | Clawdbot Reasoning Participation | Complete |
 | M8 | Published Package and OpenClaw Skill Surface | Not Started |
 | M9 | Incident Handling and Operational Hardening | Not Started |
 
@@ -248,4 +247,4 @@ Relative to the autonomous system design, the project now has:
 - a durable job pool
 - a complete first-pass ledger layer with provenance and clarification tracking
 
-The next milestone boundary is `M7`. That is the point where the repository begins to formalize Clawdbot reasoning participation and uncertainty-gated answer handling.
+The next milestone boundary is `M8`. That is the point where the repository is exposed as a published package, skill surface, and MCP integration boundary with stable external operations.

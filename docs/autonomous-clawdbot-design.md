@@ -182,19 +182,16 @@ The run controller is responsible for:
 The system does not assume that all possible questionnaire answers are pre-authored.
 
 Each answer must be derived from one of the following provenance classes:
-- `explicit_profile`
-- `resume_fact`
-- `historical_answer`
+- `known_profile`
 - `clawdbot_inferred`
-- `user_confirmation_required`
+- `user_clarification_required`
 
 Answer resolution follows this order:
-1. explicit structured profile facts
-2. deterministic document-derived or historical facts
-3. Clawdbot inference from known applicant information and job context
-4. uncertainty handling when confidence remains below policy threshold
+1. known applicant facts already loaded into OpenClaw
+2. Clawdbot inference from known applicant information and job context
+3. uncertainty handling when confidence remains below policy threshold
 
-The system must not submit an answer classified as `user_confirmation_required` unless policy explicitly permits autonomous submission for that question class.
+The system must not submit an answer classified as `user_clarification_required` unless policy explicitly permits autonomous submission for that question class.
 
 The final report must include unresolved uncertain answers with:
 - job identity
