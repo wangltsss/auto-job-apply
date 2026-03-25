@@ -24,6 +24,7 @@
     "tool:execute": "tsx tools/execute-cli.ts",
     "tool:job-pool": "tsx tools/job-pool-cli.ts",
     "tool:ledger": "tsx tools/ledger-cli.ts",
+    "tool:skill": "tsx tools/skill-cli.ts",
     "tool:pipeline": "tsx tools/pipeline-cli.ts",
     "tool:run": "tsx tools/run-cli.ts"
   },

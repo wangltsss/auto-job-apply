@@ -25,6 +25,7 @@ export async function runRunCli(
         targetSuccessCount: args.targetSuccessCount,
         jobPoolPath: args.jobPoolPath,
         runStorePath: args.runStorePath,
+        incidentStorePath: args.incidentStorePath,
         activeRunLockPath: args.activeRunLockPath,
         ledgerStorePath: args.ledgerStorePath,
         applicantProfile,

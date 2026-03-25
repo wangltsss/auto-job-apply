@@ -19,6 +19,7 @@
     "application-ledger/**/*.ts",
     "incident-manager/**/*.ts",
     "package-api/**/*.ts",
+    "skill-adapter/**/*.ts",
     "playwright/**/*.ts",
     "job-pool/**/*.ts",
     "reasoning/**/*.ts",

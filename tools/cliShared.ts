@@ -3,7 +3,7 @@ import { OrchestrationError } from '../orchestration/errors.js';
 import { ReasoningBridgeError } from '../reasoning/errors.js';
 import { pathToFileURL } from 'node:url';
 
-export type ToolStage = 'scrape' | 'answer_plan' | 'execute' | 'pipeline' | 'job_pool' | 'ledger' | 'run';
+export type ToolStage = 'scrape' | 'answer_plan' | 'execute' | 'pipeline' | 'job_pool' | 'ledger' | 'run' | 'skill';
 
 export interface ToolSuccessEnvelope {
   ok: true;

@@ -7,6 +7,7 @@ import { runAnswerPlanCli } from '../tools/answer-plan-cli.js';
 import { runExecuteCli } from '../tools/execute-cli.js';
 import { runPipelineCli } from '../tools/pipeline-cli.js';
 import { runScrapeCli } from '../tools/scrape-cli.js';
+import { runSkillCli } from '../tools/skill-cli.js';
 
 class CaptureStream extends Writable {
   chunks: string[] = [];
@@ -33,7 +34,8 @@ test('tool CLIs print help output', async () => {
     { runner: runScrapeCli, stage: 'scrape' },
     { runner: runAnswerPlanCli, stage: 'answer_plan' },
     { runner: runExecuteCli, stage: 'execute' },
-    { runner: runPipelineCli, stage: 'pipeline' }
+    { runner: runPipelineCli, stage: 'pipeline' },
+    { runner: runSkillCli, stage: 'skill' }
   ];
 
   for (const item of cases) {
@@ -149,7 +151,8 @@ test('tool CLIs emit standardized failure envelope', async () => {
     { runner: runScrapeCli, args: [], stage: 'scrape', code: 'cli_error' },
     { runner: runAnswerPlanCli, args: [], stage: 'answer_plan', code: 'cli_error' },
     { runner: runExecuteCli, args: ['--bogus'], stage: 'execute', code: 'cli_error' },
-    { runner: runPipelineCli, args: [], stage: 'pipeline', code: 'cli_error' }
+    { runner: runPipelineCli, args: [], stage: 'pipeline', code: 'cli_error' },
+    { runner: runSkillCli, args: ['call'], stage: 'skill', code: 'cli_error' }
   ];
 
   for (const item of cases) {

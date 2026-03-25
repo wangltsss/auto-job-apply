@@ -6,3 +6,4 @@ export * from './package-api/index.js';
 export * as packageApi from './package-api/index.js';
 export * as reasoning from './reasoning/index.js';
 export * as runController from './run-controller/index.js';
+export * as skillAdapter from './skill-adapter/index.js';

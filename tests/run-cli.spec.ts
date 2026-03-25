@@ -36,6 +36,8 @@ test('parseRunCliArgs parses start-run and query-run arguments', () => {
       './jobs.json',
       '--run-store-path',
       './runs.json',
+      '--incident-store-path',
+      './incidents.json',
       '--profile',
       './profile.json',
       '--mock-response',
@@ -48,6 +50,7 @@ test('parseRunCliArgs parses start-run and query-run arguments', () => {
     targetSuccessCount: 2,
     jobPoolPath: './jobs.json',
     runStorePath: './runs.json',
+    incidentStorePath: './incidents.json',
     activeRunLockPath: undefined,
     ledgerStorePath: undefined,
     profilePath: './profile.json',
@@ -83,6 +86,8 @@ test('runRunCli starts a run and queries it with standardized envelopes', async 
   const tempDir = await mkdtemp(join(tmpdir(), 'run-cli-'));
   const jobPoolPath = join(tempDir, 'jobs.json');
   const runStorePath = join(tempDir, 'runs.json');
+  const incidentStorePath = join(tempDir, 'incidents.json');
+  const activeRunLockPath = join(tempDir, 'active-run.lock');
   const profilePath = join(tempDir, 'profile.json');
 
   try {
@@ -108,6 +113,10 @@ test('runRunCli starts a run and queries it with standardized envelopes', async 
         jobPoolPath,
         '--run-store-path',
         runStorePath,
+        '--incident-store-path',
+        incidentStorePath,
+        '--active-run-lock-path',
+        activeRunLockPath,
         '--profile',
         profilePath,
         '--mock-response',
@@ -160,4 +169,5 @@ test('package root exports stable public modules', async () => {
   expect(pkg.orchestration).toBeTruthy();
   expect(pkg.reasoning).toBeTruthy();
   expect(pkg.runController).toBeTruthy();
+  expect(pkg.skillAdapter).toBeTruthy();
 });

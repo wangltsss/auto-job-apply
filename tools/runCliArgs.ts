@@ -7,6 +7,7 @@ export interface StartRunCliArgs {
   targetSuccessCount: number;
   jobPoolPath?: string;
   runStorePath?: string;
+  incidentStorePath?: string;
   activeRunLockPath?: string;
   ledgerStorePath?: string;
   profilePath?: string;
@@ -31,7 +32,7 @@ export interface QueryRunCliArgs {
 export type RunCliArgs = StartRunCliArgs | QueryRunCliArgs;
 
 export const RUN_CLI_USAGE = `Usage:
-  npm run tool:run -- start-run --target-success-count <n> [--job-pool-path <path>] [--run-store-path <path>] [--active-run-lock-path <path>] [--ledger-store-path <path>] [--profile <path>] [--mock-response <path>] [--storage-state <path>] [--headed] [--no-trace] [--submit] [--mock-execution] [--cdp-endpoint <url>]
+  npm run tool:run -- start-run --target-success-count <n> [--job-pool-path <path>] [--run-store-path <path>] [--incident-store-path <path>] [--active-run-lock-path <path>] [--ledger-store-path <path>] [--profile <path>] [--mock-response <path>] [--storage-state <path>] [--headed] [--no-trace] [--submit] [--mock-execution] [--cdp-endpoint <url>]
   npm run tool:run -- query-run [--run-id <id>] [--status active|completed|exhausted] [--limit <n>] [--run-store-path <path>]`;
 
 function parseCommand(token: string | undefined): RunCommand {
@@ -48,6 +49,7 @@ export function parseRunCliArgs(argv: string[]): RunCliArgs {
     let targetSuccessCount: number | undefined;
     let jobPoolPath: string | undefined;
     let runStorePath: string | undefined;
+    let incidentStorePath: string | undefined;
     let activeRunLockPath: string | undefined;
     let ledgerStorePath: string | undefined;
     let profilePath: string | undefined;
@@ -83,6 +85,12 @@ export function parseRunCliArgs(argv: string[]): RunCliArgs {
         const value = argv[++i];
         if (!value) throw new Error('Missing value for --run-store-path');
         runStorePath = value;
+        continue;
+      }
+      if (token === '--incident-store-path') {
+        const value = argv[++i];
+        if (!value) throw new Error('Missing value for --incident-store-path');
+        incidentStorePath = value;
         continue;
       }
       if (token === '--active-run-lock-path') {
@@ -156,6 +164,7 @@ export function parseRunCliArgs(argv: string[]): RunCliArgs {
       targetSuccessCount,
       jobPoolPath,
       runStorePath,
+      incidentStorePath,
       activeRunLockPath,
       ledgerStorePath,
       profilePath,
