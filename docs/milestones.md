@@ -202,12 +202,10 @@ Required outcomes:
 - enqueue, start-run, query-run, and query-job interfaces exist
 - external result contracts are stable and documented
 
-Status: `In Progress`
+Status: `Complete`
 
 Current gap:
-- Playwright MCP adoption must be reflected in the published integration contract
-- external operation coverage is still incomplete beyond the first stable run/job query surface
-- the skill/package boundary still needs to be finalized around Playwright MCP plus repository-level operations
+- none
 
 ## M9: Incident Handling and Operational Hardening
 Objective: detect systemic failures, prevent retry storms, and make autonomous operation safe over repeated runs.
@@ -236,7 +234,7 @@ Current gap:
 | M5 | Application Ledger and Provenance | Complete |
 | M6 | Run Controller and Strategic Retries | Complete |
 | M7 | Clawdbot Reasoning Participation | Complete |
-| M8 | Published Package and OpenClaw Skill Surface | In Progress |
+| M8 | Published Package and OpenClaw Skill Surface | Complete |
 | M9 | Incident Handling and Operational Hardening | Not Started |
 
 ## Current Assessment
@@ -247,4 +245,4 @@ Relative to the autonomous system design, the project now has:
 - a durable job pool
 - a complete first-pass ledger layer with provenance and clarification tracking
 
-The next milestone boundary is still `M8`. The repository now has a first publishable package surface and run/job query commands, but it does not yet expose the full MCP server boundary or the complete external operation set defined in the design doc.
+The next milestone boundary is `M9`. The repository now has a documented package API, a documented skill contract, stable package-facing operations, and a Playwright-MCP-aligned integration position for external orchestration.
