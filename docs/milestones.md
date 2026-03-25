@@ -4,7 +4,7 @@
 This document maps implementation milestones for the autonomous Clawdbot system defined in [autonomous-clawdbot-design.md](/home/shawn/Documents/auto-apply/docs/autonomous-clawdbot-design.md) and identifies the current project position.
 
 ## Current Position
-The project is currently at `M8: Published Package and OpenClaw Skill Surface`, with `M9` still pending.
+The project is currently at `M9: Incident Handling and Operational Hardening`.
 
 The following capabilities are implemented today:
 - deterministic ATS form scraping
@@ -19,12 +19,7 @@ The following capabilities are implemented today:
 - machine-readable artifacts for scrape, answer-plan, execution, and pipeline runs
 - baseline tests for schema validation, executor behavior, reasoning bridge behavior, and orchestration
 
-The following capabilities are not yet implemented as system primitives:
-- run controller based on target successful applications
-- strategic retry scheduling across attempts
-- answer provenance tracking
-- unresolved uncertainty handling in final reports
-- MCP server surface for direct protocol integration
+The milestone set defined in this document is fully implemented.
 
 ## Milestone Definitions
 
@@ -217,11 +212,10 @@ Required outcomes:
 - session-state failure handling is explicit
 - operational reporting is suitable for unattended runs
 
-Status: `Not Started`
+Status: `Complete`
 
 Current gap:
-- failure codes exist at stage level, but there is no cross-run incident aggregation
-- no system-wide pause, cooldown, or failure-burst handling exists
+- none
 
 ## Summary Table
 | Milestone | Name | Status |
@@ -235,7 +229,7 @@ Current gap:
 | M6 | Run Controller and Strategic Retries | Complete |
 | M7 | Clawdbot Reasoning Participation | Complete |
 | M8 | Published Package and OpenClaw Skill Surface | Complete |
-| M9 | Incident Handling and Operational Hardening | Not Started |
+| M9 | Incident Handling and Operational Hardening | Complete |
 
 ## Current Assessment
 The repository has already cleared the hardest foundational engineering work for deterministic automation. It is no longer a prototype scraper; it is a functioning single-job execution core with contracts, orchestration, and tests.
@@ -245,4 +239,4 @@ Relative to the autonomous system design, the project now has:
 - a durable job pool
 - a complete first-pass ledger layer with provenance and clarification tracking
 
-The next milestone boundary is `M9`. The repository now has a documented package API, a documented skill contract, stable package-facing operations, and a Playwright-MCP-aligned integration position for external orchestration.
+The repository now has cross-run incident aggregation, host cooldown behavior, explicit session-failure incidents, and an incident query surface for unattended reporting.

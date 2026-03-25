@@ -50,4 +50,5 @@ The repository now also exposes a stable package-facing root export at [index.ts
 - Package API: `docs/package-api.md`
 - OpenClaw skill contract: `docs/skill-contract.md`
 - Application ledger: `docs/application-ledger.md`
+- Incident manager: `docs/incident-manager.md`
 - Deployment: `docs/deployment.md`

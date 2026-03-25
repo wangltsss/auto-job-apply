@@ -23,6 +23,7 @@ It is responsible for:
 - starting autonomous application runs
 - returning run state
 - returning ledger state
+- returning operational incident state
 
 It is not responsible for:
 - replacing Playwright MCP
@@ -109,6 +110,21 @@ OpenClaw usage:
 - build final reports
 - surface unresolved clarification items
 - inspect provenance and failure records
+
+### `query_incidents`
+Retrieves active or resolved operational incidents.
+
+Input:
+- optional incident status
+- optional result limit
+
+Output:
+- matching incident records
+
+OpenClaw usage:
+- inspect active host cooldowns
+- explain why certain postings were paused
+- surface systemic session or site failures in unattended reports
 
 ## Expected OpenClaw Behavior
 OpenClaw must:

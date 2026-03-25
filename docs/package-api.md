@@ -17,6 +17,7 @@ The package API exposes repository-level operations for:
 - job querying
 - run start and run querying
 - ledger querying
+- incident querying
 
 The package API does not expose:
 - free-form browser-control primitives
@@ -38,6 +39,7 @@ The stable service-level exports are:
 - `startRun`
 - `queryRun`
 - `queryLedger`
+- `queryIncidents`
 
 ## Public Operations
 
@@ -132,6 +134,21 @@ Output:
 
 Behavior:
 - performs read-only lookup against the durable application ledger
+
+### `queryIncidents`
+Returns active or resolved operational incidents.
+
+Input:
+- optional incident `status`
+- optional `limit`
+- optional incident-store path override
+
+Output:
+- incident count
+- matching incident records
+
+Behavior:
+- performs read-only lookup against the durable incident store
 
 ## External Result Shape
 Published package operations must preserve the same high-level result semantics as the skill/tool surface:

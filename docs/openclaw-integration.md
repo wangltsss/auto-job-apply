@@ -16,6 +16,7 @@ The formal duty boundary between OpenClaw and the runtime is defined in:
 - [docs/openclaw-runtime-contract.md](/home/shawn/Documents/auto-apply/docs/openclaw-runtime-contract.md)
 - [docs/package-api.md](/home/shawn/Documents/auto-apply/docs/package-api.md)
 - [docs/skill-contract.md](/home/shawn/Documents/auto-apply/docs/skill-contract.md)
+- [docs/incident-manager.md](/home/shawn/Documents/auto-apply/docs/incident-manager.md)
 
 The skill surface includes:
 - scraping operations
