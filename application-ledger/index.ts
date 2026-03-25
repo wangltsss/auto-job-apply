@@ -3,7 +3,6 @@ export { queryLedger } from './queryLedger.js';
 export { recordExecutionOutcome } from './recordExecutionOutcome.js';
 export type {
   AnswerSummaryRecord,
-  AnswerProvenance,
   ApplicationAttemptRecord,
   ApplicationLedgerStore,
   ApplicationSuccessRecord,

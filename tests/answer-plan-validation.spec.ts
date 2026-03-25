@@ -15,7 +15,8 @@ test('accepts valid proceed answer plan', () => {
         value: 'Taylor',
         confidence: 0.99,
         rationale_short: 'Direct profile match.',
-        requires_human_review: false
+        requires_human_review: false,
+        provenance: 'known_profile'
       },
       {
         field_id: 'work_auth',
@@ -23,7 +24,8 @@ test('accepts valid proceed answer plan', () => {
         value: 'Yes',
         confidence: 0.96,
         rationale_short: 'Known eligibility status.',
-        requires_human_review: false
+        requires_human_review: false,
+        provenance: 'known_profile'
       },
       {
         field_id: 'resume_upload',
@@ -35,7 +37,8 @@ test('accepts valid proceed answer plan', () => {
         },
         confidence: 0.93,
         rationale_short: 'Use latest tailored resume.',
-        requires_human_review: false
+        requires_human_review: false,
+        provenance: 'known_profile'
       }
     ],
     ambiguous_fields: [],
@@ -60,7 +63,34 @@ test('rejects malformed answer plan', () => {
         value: 'test@example.com',
         confidence: 1.5,
         rationale_short: 'Invalid confidence range.',
-        requires_human_review: false
+        requires_human_review: false,
+        provenance: 'known_profile'
+      }
+    ],
+    ambiguous_fields: [],
+    notes: [],
+    generated_at: new Date().toISOString()
+  };
+
+  expect(isAnswerPlan(payload)).toBeFalsy();
+});
+
+test('rejects clarification provenance when human review flag is false', () => {
+  const payload = {
+    status: 'quarantine',
+    reason: 'Clarification required.',
+    ats: 'unknown',
+    application_url: 'https://example.com/apply',
+    submit_allowed: false,
+    answers: [
+      {
+        field_id: 'work_auth',
+        answer_type: 'skip',
+        value: null,
+        confidence: 0.2,
+        rationale_short: 'Cannot infer safely.',
+        requires_human_review: false,
+        provenance: 'user_clarification_required'
       }
     ],
     ambiguous_fields: [],

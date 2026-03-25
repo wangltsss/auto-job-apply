@@ -3,6 +3,7 @@ import type { AtsType } from './types.js';
 export type AnswerPlanStatus = 'proceed' | 'quarantine' | 'not_eligible';
 
 export type AnswerType = 'scalar' | 'option' | 'multi_select' | 'file_action' | 'skip';
+export type AnswerProvenance = 'known_profile' | 'clawdbot_inferred' | 'user_clarification_required';
 
 export interface AnswerBase {
   field_id: string;
@@ -10,6 +11,7 @@ export interface AnswerBase {
   confidence: number;
   rationale_short: string;
   requires_human_review: boolean;
+  provenance: AnswerProvenance;
 }
 
 export interface ScalarAnswer extends AnswerBase {

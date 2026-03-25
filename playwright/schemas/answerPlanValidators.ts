@@ -1,4 +1,4 @@
-import type { AnswerPlan, AnswerPlanItem, AnswerType, FileActionValue } from './answerPlanTypes.js';
+import type { AnswerPlan, AnswerPlanItem, AnswerProvenance, AnswerType, FileActionValue } from './answerPlanTypes.js';
 
 const ALLOWED_ANSWER_TYPES: Set<AnswerType> = new Set([
   'scalar',
@@ -83,8 +83,13 @@ function isAnswerItem(value: unknown): value is AnswerPlanItem {
     obj.confidence < 0 ||
     obj.confidence > 1 ||
     typeof obj.rationale_short !== 'string' ||
-    typeof obj.requires_human_review !== 'boolean'
+    typeof obj.requires_human_review !== 'boolean' ||
+    !isProvenance(obj.provenance)
   ) {
+    return false;
+  }
+
+  if (obj.provenance === 'user_clarification_required' && obj.requires_human_review !== true) {
     return false;
   }
 
@@ -109,6 +114,10 @@ function isAnswerItem(value: unknown): value is AnswerPlanItem {
   }
 
   return false;
+}
+
+function isProvenance(value: unknown): value is AnswerProvenance {
+  return value === 'known_profile' || value === 'clawdbot_inferred' || value === 'user_clarification_required';
 }
 
 function isFileActionValue(value: unknown): value is FileActionValue {

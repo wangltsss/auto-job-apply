@@ -11,7 +11,8 @@
       "value": "Taylor",
       "confidence": 0.99,
       "rationale_short": "Direct profile match.",
-      "requires_human_review": false
+      "requires_human_review": false,
+      "provenance": "known_profile"
     },
     {
       "field_id": "work_auth",
@@ -19,7 +20,8 @@
       "value": "Yes",
       "confidence": 0.85,
       "rationale_short": "Known work authorization.",
-      "requires_human_review": false
+      "requires_human_review": false,
+      "provenance": "clawdbot_inferred"
     },
     {
       "field_id": "resume",
@@ -31,7 +33,8 @@
       },
       "confidence": 0.9,
       "rationale_short": "Use latest resume path.",
-      "requires_human_review": false
+      "requires_human_review": false,
+      "provenance": "known_profile"
     },
     {
       "field_id": "eeoc_gender",
@@ -39,7 +42,8 @@
       "value": null,
       "confidence": 0.9,
       "rationale_short": "Demographic question skipped by policy.",
-      "requires_human_review": false
+      "requires_human_review": false,
+      "provenance": "known_profile"
     }
   ],
   "ambiguous_fields": [],

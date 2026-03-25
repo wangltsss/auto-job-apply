@@ -11,7 +11,8 @@
       "value": "Taylor",
       "confidence": 0.99,
       "rationale_short": "Matches canonical profile first name.",
-      "requires_human_review": false
+      "requires_human_review": false,
+      "provenance": "known_profile"
     },
     {
       "field_id": "email",
@@ -19,7 +20,8 @@
       "value": "taylor@example.com",
       "confidence": 0.99,
       "rationale_short": "Matches canonical email.",
-      "requires_human_review": false
+      "requires_human_review": false,
+      "provenance": "known_profile"
     },
     {
       "field_id": "work_authorization",
@@ -27,7 +29,8 @@
       "value": "Yes",
       "confidence": 0.97,
       "rationale_short": "Known answer from applicant profile.",
-      "requires_human_review": false
+      "requires_human_review": false,
+      "provenance": "known_profile"
     },
     {
       "field_id": "skills",
@@ -35,7 +38,8 @@
       "value": ["TypeScript", "Playwright", "AWS"],
       "confidence": 0.9,
       "rationale_short": "Selected from profile skill inventory.",
-      "requires_human_review": false
+      "requires_human_review": false,
+      "provenance": "clawdbot_inferred"
     },
     {
       "field_id": "resume",
@@ -47,7 +51,8 @@
       },
       "confidence": 0.92,
       "rationale_short": "Use tailored resume prepared for this role.",
-      "requires_human_review": false
+      "requires_human_review": false,
+      "provenance": "known_profile"
     }
   ],
   "ambiguous_fields": [],

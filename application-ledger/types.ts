@@ -1,8 +1,6 @@
-import type { AnswerType } from '../playwright/schemas/answerPlanTypes.js';
+import type { AnswerProvenance, AnswerType } from '../playwright/schemas/answerPlanTypes.js';
 import type { AtsType } from '../playwright/schemas/types.js';
 import type { ExecutionFailureCode } from '../executor/types.js';
-
-export type AnswerProvenance = 'known_profile' | 'clawdbot_inferred' | 'user_clarification_required';
 
 export interface AnswerSummaryRecord {
   field_id: string;

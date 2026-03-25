@@ -11,7 +11,8 @@
       "value": null,
       "confidence": 0.15,
       "rationale_short": "No approved compensation target in profile.",
-      "requires_human_review": true
+      "requires_human_review": true,
+      "provenance": "user_clarification_required"
     },
     {
       "field_id": "relocation",
@@ -19,7 +20,8 @@
       "value": "Maybe",
       "confidence": 0.42,
       "rationale_short": "Conflicting relocation preferences found.",
-      "requires_human_review": true
+      "requires_human_review": true,
+      "provenance": "user_clarification_required"
     },
     {
       "field_id": "cover_letter",
@@ -31,7 +33,8 @@
       },
       "confidence": 0.88,
       "rationale_short": "No tailored cover letter generated yet.",
-      "requires_human_review": true
+      "requires_human_review": true,
+      "provenance": "user_clarification_required"
     }
   ],
   "ambiguous_fields": [
