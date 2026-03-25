@@ -10,7 +10,7 @@ import { parseAndValidateAnswerPlan } from '../reasoning/parseAnswerPlan.js';
 test('buildOpenClawInvocation defaults to agent message mode', () => {
   expect(buildOpenClawInvocation('hello')).toEqual({
     command: 'openclaw',
-    args: ['agent', '--local', '--plain', '--message', 'hello'],
+    args: ['agent', '--local', '--message', 'hello'],
     stdinPrompt: false
   });
 });

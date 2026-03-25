@@ -21,7 +21,7 @@ export function buildOpenClawInvocation(prompt: string, options: OpenClawRunnerO
 
   return {
     command,
-    args: ['agent', '--local', '--plain', '--message', prompt],
+    args: ['agent', '--local', '--message', prompt],
     stdinPrompt: false
   };
 }
