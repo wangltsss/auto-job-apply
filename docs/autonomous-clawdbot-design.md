@@ -10,6 +10,7 @@ The system combines:
 - deterministic browser automation for application scraping and submission
 - agent-assisted questionnaire reasoning through Clawdbot
 - MCP-based external tool integration
+- Playwright MCP as the adopted browser-level MCP transport
 - persistent job-pool and application-ledger state
 - structured reporting for successful, failed, and uncertain outcomes
 
@@ -36,7 +37,7 @@ The system is not responsible for:
 ## Design Principles
 - Deterministic execution: page interaction, selector resolution, and submission behavior are owned by the repository runtime and do not depend on free-form agent behavior during execution.
 - Structured reasoning: Clawdbot may infer answers to underspecified questions, but all reasoning outputs must be converted into validated structured plan artifacts before execution.
-- MCP interoperability: external orchestration is exposed through stable, tool-shaped operations that can be mapped directly into an MCP server surface.
+- MCP interoperability: external orchestration is exposed through stable, tool-shaped operations. Browser-level MCP transport is delegated to Playwright MCP rather than a custom browser MCP implementation in this repository.
 - Durable state: job-pool state, attempts, and final application records must be stored durably and independently from ephemeral runtime memory.
 - Provenance: every submitted answer must be traceable to an explicit source category.
 - Bounded autonomy: the system operates autonomously within explicit policy, confidence, and support boundaries.
@@ -110,6 +111,9 @@ The MCP integration surface is responsible for:
 - preserving structured input and output contracts
 - mapping external tool calls to internal deterministic runtime modules
 - separating transport/protocol concerns from application logic
+
+Browser-level MCP transport is delegated to Playwright MCP.
+This repository does not define a custom browser-control MCP surface.
 
 The MCP surface does not replace the internal runtime. It is the protocol boundary through which Clawdbot and other MCP clients interact with the repository.
 
@@ -588,7 +592,7 @@ The MCP layer must preserve:
 - stable operation names
 - deterministic delegation into repository modules
 
-The MCP layer does not permit free-form browser control. Browser execution remains owned by the deterministic runtime.
+The MCP layer does not permit free-form browser control. Browser transport is delegated to Playwright MCP, while browser execution semantics remain owned by the deterministic runtime.
 
 ## Run Result Contract
 A completed run result must contain:

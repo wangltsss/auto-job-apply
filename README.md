@@ -1,6 +1,6 @@
 # Auto-Apply Pipeline Contracts
 
-OpenClaw skill and deterministic runtime for job-application automation.
+OpenClaw skill and deterministic runtime for job-application automation, with Playwright MCP adopted as the browser-level MCP transport.
 
 ## Implemented layers
 - Scraper/collector layer for extracting ATS application forms
@@ -29,6 +29,7 @@ This project is intended to be used through OpenClaw as a skill-backed tool surf
 The user-facing integration model is:
 - OpenClaw discovers the skill
 - OpenClaw invokes the repository through MCP-compatible operations
+- browser-level MCP transport is delegated to Playwright MCP
 - the repository executes deterministic scrape, reasoning, execution, job-pool, and ledger modules behind that interface
 
 The local `tool:*` commands are implementation details of the skill runtime and MCP surface. They are not the primary user interface.

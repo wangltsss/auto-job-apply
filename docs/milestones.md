@@ -205,8 +205,9 @@ Required outcomes:
 Status: `In Progress`
 
 Current gap:
-- no MCP server surface is implemented
+- Playwright MCP adoption must be reflected in the published integration contract
 - external operation coverage is still incomplete beyond the first stable run/job query surface
+- the skill/package boundary still needs to be finalized around Playwright MCP plus repository-level operations
 
 ## M9: Incident Handling and Operational Hardening
 Objective: detect systemic failures, prevent retry storms, and make autonomous operation safe over repeated runs.

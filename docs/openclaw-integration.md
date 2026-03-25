@@ -5,10 +5,12 @@ This repository is intended to be used from OpenClaw through a skill-backed MCP 
 ## MCP Position
 The repository keeps deterministic execution, queue state, and ledger state inside its own modules.
 MCP is the external protocol layer used to expose those modules as structured tool operations.
+Browser-level MCP transport is delegated to Playwright MCP.
 
 ## Skill model
 OpenClaw is the orchestrator.
 The repository is the deterministic runtime and stateful backend exposed to OpenClaw through MCP-compatible tool operations.
+Playwright MCP is the adopted browser-level MCP layer used when OpenClaw needs MCP-mediated browser access.
 
 The formal duty boundary between OpenClaw and the runtime is defined in:
 - [docs/openclaw-runtime-contract.md](/home/shawn/Documents/auto-apply/docs/openclaw-runtime-contract.md)
@@ -21,6 +23,14 @@ The skill surface includes:
 - ledger operations
 - pipeline operations
 - run-control operations
+
+Playwright MCP is not a replacement for this repository.
+It supplies browser-level MCP transport, while this repository remains responsible for:
+- job-pool state
+- answer-plan contracts
+- deterministic application execution
+- application ledger persistence
+- run-controller behavior
 
 ## Internal command surface
 The repository implements the skill and MCP layer with local tool commands.
