@@ -4,7 +4,7 @@
 This document maps implementation milestones for the autonomous Clawdbot system defined in [autonomous-clawdbot-design.md](/home/shawn/Documents/auto-apply/docs/autonomous-clawdbot-design.md) and identifies the current project position.
 
 ## Current Position
-The project is currently at `M7: Clawdbot Reasoning Participation`, with `M8` and beyond still pending.
+The project is currently at `M8: Published Package and OpenClaw Skill Surface`, with `M9` still pending.
 
 The following capabilities are implemented today:
 - deterministic ATS form scraping
@@ -202,12 +202,11 @@ Required outcomes:
 - enqueue, start-run, query-run, and query-job interfaces exist
 - external result contracts are stable and documented
 
-Status: `Not Started`
+Status: `In Progress`
 
 Current gap:
-- the repository exposes internal CLIs, but not a finalized package API or skill contract
 - no MCP server surface is implemented
-- external run-level interfaces defined in the design doc are not implemented
+- external operation coverage is still incomplete beyond the first stable run/job query surface
 
 ## M9: Incident Handling and Operational Hardening
 Objective: detect systemic failures, prevent retry storms, and make autonomous operation safe over repeated runs.
@@ -236,7 +235,7 @@ Current gap:
 | M5 | Application Ledger and Provenance | Complete |
 | M6 | Run Controller and Strategic Retries | Complete |
 | M7 | Clawdbot Reasoning Participation | Complete |
-| M8 | Published Package and OpenClaw Skill Surface | Not Started |
+| M8 | Published Package and OpenClaw Skill Surface | In Progress |
 | M9 | Incident Handling and Operational Hardening | Not Started |
 
 ## Current Assessment
@@ -247,4 +246,4 @@ Relative to the autonomous system design, the project now has:
 - a durable job pool
 - a complete first-pass ledger layer with provenance and clarification tracking
 
-The next milestone boundary is `M8`. That is the point where the repository is exposed as a published package, skill surface, and MCP integration boundary with stable external operations.
+The next milestone boundary is still `M8`. The repository now has a first publishable package surface and run/job query commands, but it does not yet expose the full MCP server boundary or the complete external operation set defined in the design doc.

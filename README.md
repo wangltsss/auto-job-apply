@@ -33,6 +33,8 @@ The user-facing integration model is:
 
 The local `tool:*` commands are implementation details of the skill runtime and MCP surface. They are not the primary user interface.
 
+The repository now also exposes a package-facing root export at [index.ts](/home/shawn/Documents/auto-apply/index.ts) for stable programmatic use by a future published package surface.
+
 ## Contracts
 - Extracted form schema: `playwright/schemas/form.schema.json`
 - Answer plan schema: `playwright/schemas/answer-plan.schema.json`
