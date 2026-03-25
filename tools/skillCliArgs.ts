@@ -17,6 +17,8 @@ export type SkillCliArgs = DescribeSkillCliArgs | CallSkillCliArgs;
 
 export const SKILL_CLI_USAGE = `Usage:
   npm run tool:skill -- describe
+  npm run tool:skill -- call --operation /ingest --input-json '{"url":"https://example.com/job"}'
+  npm run tool:skill -- call --operation /apply --input-json '{"count":1}'
   npm run tool:skill -- call --operation describe_operations
   npm run tool:skill -- call --operation <name> [--input-file <path> | --input-json <json>]`;
 
@@ -31,6 +33,8 @@ function parseCommand(token: string | undefined): SkillCommand {
 function parseOperation(token: string | undefined): SkillOperationName {
   if (
     token === 'describe_operations' ||
+    token === '/ingest' ||
+    token === '/apply' ||
     token === 'enqueue_posting' ||
     token === 'query_job' ||
     token === 'start_run' ||

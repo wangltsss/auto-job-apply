@@ -15,6 +15,8 @@ import type {
 
 export type SkillOperationName =
   | 'describe_operations'
+  | '/ingest'
+  | '/apply'
   | 'enqueue_posting'
   | 'query_job'
   | 'start_run'
@@ -32,8 +34,30 @@ export interface DescribeOperationsResult {
   operations: SkillOperationDescriptor[];
 }
 
+export interface SlashIngestInput {
+  url?: string;
+  urls?: string[];
+  source_type?: 'manual' | 'automated';
+  apply_url?: string;
+  company?: string | null;
+  title?: string | null;
+  location?: string | null;
+  employment_type?: string | null;
+  posted_at?: string | null;
+  notes?: string | null;
+  raw_payload?: Record<string, unknown>;
+  storePath?: string;
+}
+
+export interface SlashApplyInput extends Omit<StartRunInput, 'target_success_count'> {
+  count?: number;
+  target_success_count?: number;
+}
+
 export interface SkillOperationInputMap {
   describe_operations: Record<string, never>;
+  '/ingest': SlashIngestInput;
+  '/apply': SlashApplyInput;
   enqueue_posting: EnqueueJobInput;
   query_job: QueryJobInput;
   start_run: StartRunInput;
@@ -44,6 +68,8 @@ export interface SkillOperationInputMap {
 
 export interface SkillOperationResultMap {
   describe_operations: DescribeOperationsResult;
+  '/ingest': EnqueueJobResult;
+  '/apply': StartRunResult;
   enqueue_posting: EnqueueJobResult;
   query_job: QueryJobResult;
   start_run: StartRunResult;

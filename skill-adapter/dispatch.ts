@@ -7,7 +7,51 @@ import {
   startRun
 } from '../package-api/index.js';
 import { SKILL_OPERATION_DESCRIPTORS } from './operations.js';
-import type { SkillOperationInputMap, SkillOperationName, SkillOperationResultMap } from './types.js';
+import type { EnqueueJobInput, StartRunInput } from '../package-api/index.js';
+import type {
+  SkillOperationInputMap,
+  SkillOperationName,
+  SkillOperationResultMap,
+  SlashApplyInput,
+  SlashIngestInput
+} from './types.js';
+
+function normalizeSlashIngestInput(input: SlashIngestInput): EnqueueJobInput {
+  const urls = input.urls ?? (input.url ? [input.url] : []);
+  if (urls.length === 0) {
+    throw new Error('/ingest requires url or urls');
+  }
+
+  const jobs: EnqueueJobInput['jobs'] = urls.map((url) => ({
+    source_type: input.source_type,
+    source_url: url,
+    apply_url: input.apply_url,
+    company: input.company,
+    title: input.title,
+    location: input.location,
+    employment_type: input.employment_type,
+    posted_at: input.posted_at,
+    notes: input.notes,
+    raw_payload: input.raw_payload
+  }));
+
+  return {
+    jobs,
+    storePath: input.storePath
+  };
+}
+
+function normalizeSlashApplyInput(input: SlashApplyInput): StartRunInput {
+  const targetSuccessCount = input.target_success_count ?? input.count;
+  if (!targetSuccessCount || !Number.isInteger(targetSuccessCount) || targetSuccessCount <= 0) {
+    throw new Error('/apply requires a positive count or target_success_count');
+  }
+
+  return {
+    ...input,
+    target_success_count: targetSuccessCount
+  };
+}
 
 export async function dispatchSkillOperation<T extends SkillOperationName>(
   operation: T,
@@ -16,6 +60,10 @@ export async function dispatchSkillOperation<T extends SkillOperationName>(
   switch (operation) {
     case 'describe_operations':
       return { operations: SKILL_OPERATION_DESCRIPTORS } as SkillOperationResultMap[T];
+    case '/ingest':
+      return enqueueJob(normalizeSlashIngestInput(input as SkillOperationInputMap['/ingest'])) as Promise<SkillOperationResultMap[T]>;
+    case '/apply':
+      return startRun(normalizeSlashApplyInput(input as SkillOperationInputMap['/apply'])) as Promise<SkillOperationResultMap[T]>;
     case 'enqueue_posting':
       return enqueueJob(input as SkillOperationInputMap['enqueue_posting']) as Promise<SkillOperationResultMap[T]>;
     case 'query_job':

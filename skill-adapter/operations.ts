@@ -7,6 +7,16 @@ export const SKILL_OPERATION_DESCRIPTORS: SkillOperationDescriptor[] = [
     input_summary: 'No input object is required.'
   },
   {
+    name: '/ingest',
+    description: 'Preferred OpenClaw shortcut for inserting one or more job URLs into the durable job pool.',
+    input_summary: 'Provide url or urls, plus optional title/company/location metadata and an optional storePath.'
+  },
+  {
+    name: '/apply',
+    description: 'Preferred OpenClaw shortcut for starting an autonomous run.',
+    input_summary: 'Provide count or target_success_count, plus optional runtime/store overrides.'
+  },
+  {
     name: 'enqueue_posting',
     description: 'Adds one or more pre-eligible job postings to the durable job pool.',
     input_summary: 'Provide jobs and an optional storePath override.'
