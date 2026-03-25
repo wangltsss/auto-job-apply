@@ -1,7 +1,7 @@
 # Project Milestones
 
 ## Purpose
-This document maps implementation milestones for the autonomous Clawdbot system defined in [autonomous-clawdbot-design.md](/home/shawn/Documents/auto-apply/docs/autonomous-clawdbot-design.md) and identifies the current project position.
+This document maps implementation milestones for the autonomous Clawdbot system defined in [autonomous-clawdbot-design.md](autonomous-clawdbot-design.md) and identifies the current project position.
 
 ## Current Position
 The project is currently at `M9: Incident Handling and Operational Hardening`.
@@ -36,12 +36,12 @@ Required outcomes:
 Status: `Complete`
 
 Evidence:
-- [package.json](/home/shawn/Documents/auto-apply/package.json)
-- [tsconfig.json](/home/shawn/Documents/auto-apply/tsconfig.json)
-- [playwright/schemas/form.schema.json](/home/shawn/Documents/auto-apply/playwright/schemas/form.schema.json)
-- [playwright/schemas/answer-plan.schema.json](/home/shawn/Documents/auto-apply/playwright/schemas/answer-plan.schema.json)
-- [scripts/bootstrap-device.sh](/home/shawn/Documents/auto-apply/scripts/bootstrap-device.sh)
-- [scripts/deploy-on-device.sh](/home/shawn/Documents/auto-apply/scripts/deploy-on-device.sh)
+- [package.json](../package.json)
+- [tsconfig.json](../tsconfig.json)
+- [playwright/schemas/form.schema.json](../playwright/schemas/form.schema.json)
+- [playwright/schemas/answer-plan.schema.json](../playwright/schemas/answer-plan.schema.json)
+- [scripts/bootstrap-device.sh](../scripts/bootstrap-device.sh)
+- [scripts/deploy-on-device.sh](../scripts/deploy-on-device.sh)
 
 ## M1: Deterministic Form Extraction
 Objective: reliably open supported application surfaces, detect ATS context, extract normalized fields, and persist form artifacts.
@@ -56,12 +56,12 @@ Required outcomes:
 Status: `Complete`
 
 Evidence:
-- [playwright/core/scrapeRunner.ts](/home/shawn/Documents/auto-apply/playwright/core/scrapeRunner.ts)
-- [playwright/ats/detectAts.ts](/home/shawn/Documents/auto-apply/playwright/ats/detectAts.ts)
-- [playwright/extractors/genericExtractor.ts](/home/shawn/Documents/auto-apply/playwright/extractors/genericExtractor.ts)
-- [playwright/extractors/greenhouseExtractor.ts](/home/shawn/Documents/auto-apply/playwright/extractors/greenhouseExtractor.ts)
-- [playwright/extractors/linkedInEasyApplyExtractor.ts](/home/shawn/Documents/auto-apply/playwright/extractors/linkedInEasyApplyExtractor.ts)
-- [docs/architecture.md](/home/shawn/Documents/auto-apply/docs/architecture.md)
+- [playwright/core/scrapeRunner.ts](../playwright/core/scrapeRunner.ts)
+- [playwright/ats/detectAts.ts](../playwright/ats/detectAts.ts)
+- [playwright/extractors/genericExtractor.ts](../playwright/extractors/genericExtractor.ts)
+- [playwright/extractors/greenhouseExtractor.ts](../playwright/extractors/greenhouseExtractor.ts)
+- [playwright/extractors/linkedInEasyApplyExtractor.ts](../playwright/extractors/linkedInEasyApplyExtractor.ts)
+- [docs/architecture.md](architecture.md)
 
 ## M2: Deterministic Single-Job Runtime
 Objective: transform a scraped form into a validated answer plan and deterministically execute it against a live page.
@@ -77,14 +77,14 @@ Required outcomes:
 Status: `Complete`
 
 Evidence:
-- [reasoning/buildReasoningInput.ts](/home/shawn/Documents/auto-apply/reasoning/buildReasoningInput.ts)
-- [reasoning/runOpenClaw.ts](/home/shawn/Documents/auto-apply/reasoning/runOpenClaw.ts)
-- [reasoning/parseAnswerPlan.ts](/home/shawn/Documents/auto-apply/reasoning/parseAnswerPlan.ts)
-- [executor/index.ts](/home/shawn/Documents/auto-apply/executor/index.ts)
-- [executor/submitFlow.ts](/home/shawn/Documents/auto-apply/executor/submitFlow.ts)
-- [executor/writeExecutionArtifact.ts](/home/shawn/Documents/auto-apply/executor/writeExecutionArtifact.ts)
-- [docs/reasoning-bridge.md](/home/shawn/Documents/auto-apply/docs/reasoning-bridge.md)
-- [docs/executor.md](/home/shawn/Documents/auto-apply/docs/executor.md)
+- [reasoning/buildReasoningInput.ts](../reasoning/buildReasoningInput.ts)
+- [reasoning/runOpenClaw.ts](../reasoning/runOpenClaw.ts)
+- [reasoning/parseAnswerPlan.ts](../reasoning/parseAnswerPlan.ts)
+- [executor/index.ts](../executor/index.ts)
+- [executor/submitFlow.ts](../executor/submitFlow.ts)
+- [executor/writeExecutionArtifact.ts](../executor/writeExecutionArtifact.ts)
+- [docs/reasoning-bridge.md](reasoning-bridge.md)
+- [docs/executor.md](executor.md)
 
 ## M3: Unified Tooling and Pipeline Invocation
 Objective: expose the deterministic runtime through stable CLI entrypoints and a single pipeline invocation surface.
@@ -99,13 +99,13 @@ Required outcomes:
 Status: `Complete`
 
 Evidence:
-- [tools/scrape-cli.ts](/home/shawn/Documents/auto-apply/tools/scrape-cli.ts)
-- [tools/answer-plan-cli.ts](/home/shawn/Documents/auto-apply/tools/answer-plan-cli.ts)
-- [tools/execute-cli.ts](/home/shawn/Documents/auto-apply/tools/execute-cli.ts)
-- [tools/pipeline-cli.ts](/home/shawn/Documents/auto-apply/tools/pipeline-cli.ts)
-- [orchestration/pipeline.ts](/home/shawn/Documents/auto-apply/orchestration/pipeline.ts)
-- [docs/orchestration.md](/home/shawn/Documents/auto-apply/docs/orchestration.md)
-- [docs/openclaw-integration.md](/home/shawn/Documents/auto-apply/docs/openclaw-integration.md)
+- [tools/scrape-cli.ts](../tools/scrape-cli.ts)
+- [tools/answer-plan-cli.ts](../tools/answer-plan-cli.ts)
+- [tools/execute-cli.ts](../tools/execute-cli.ts)
+- [tools/pipeline-cli.ts](../tools/pipeline-cli.ts)
+- [orchestration/pipeline.ts](../orchestration/pipeline.ts)
+- [docs/orchestration.md](orchestration.md)
+- [docs/openclaw-integration.md](openclaw-integration.md)
 
 ## M4: Job Pool and Ingestion Layer
 Objective: introduce a durable pool of pre-eligible job postings with normalization, deduplication, and ingestion workflows.
@@ -120,14 +120,14 @@ Required outcomes:
 Status: `Complete`
 
 Primary design reference:
-- [docs/autonomous-clawdbot-design.md](/home/shawn/Documents/auto-apply/docs/autonomous-clawdbot-design.md)
+- [docs/autonomous-clawdbot-design.md](autonomous-clawdbot-design.md)
 
 Evidence:
-- [job-pool/index.ts](/home/shawn/Documents/auto-apply/job-pool/index.ts)
-- [tools/job-pool-cli.ts](/home/shawn/Documents/auto-apply/tools/job-pool-cli.ts)
-- [docs/job-pool.md](/home/shawn/Documents/auto-apply/docs/job-pool.md)
-- [tests/job-pool.spec.ts](/home/shawn/Documents/auto-apply/tests/job-pool.spec.ts)
-- [tests/job-pool-cli.spec.ts](/home/shawn/Documents/auto-apply/tests/job-pool-cli.spec.ts)
+- [job-pool/index.ts](../job-pool/index.ts)
+- [tools/job-pool-cli.ts](../tools/job-pool-cli.ts)
+- [docs/job-pool.md](job-pool.md)
+- [tests/job-pool.spec.ts](../tests/job-pool.spec.ts)
+- [tests/job-pool-cli.spec.ts](../tests/job-pool-cli.spec.ts)
 
 ## M5: Application Ledger and Provenance
 Objective: persist attempts and final application outcomes as first-class system records rather than only filesystem artifacts.
@@ -150,12 +150,12 @@ Completed:
 - ledger inspection operations exist
 
 Evidence:
-- [application-ledger/index.ts](/home/shawn/Documents/auto-apply/application-ledger/index.ts)
-- [application-ledger/recordExecutionOutcome.ts](/home/shawn/Documents/auto-apply/application-ledger/recordExecutionOutcome.ts)
-- [tools/ledger-cli.ts](/home/shawn/Documents/auto-apply/tools/ledger-cli.ts)
-- [docs/application-ledger.md](/home/shawn/Documents/auto-apply/docs/application-ledger.md)
-- [tests/application-ledger.spec.ts](/home/shawn/Documents/auto-apply/tests/application-ledger.spec.ts)
-- [tests/ledger-cli.spec.ts](/home/shawn/Documents/auto-apply/tests/ledger-cli.spec.ts)
+- [application-ledger/index.ts](../application-ledger/index.ts)
+- [application-ledger/recordExecutionOutcome.ts](../application-ledger/recordExecutionOutcome.ts)
+- [tools/ledger-cli.ts](../tools/ledger-cli.ts)
+- [docs/application-ledger.md](application-ledger.md)
+- [tests/application-ledger.spec.ts](../tests/application-ledger.spec.ts)
+- [tests/ledger-cli.spec.ts](../tests/ledger-cli.spec.ts)
 
 ## M6: Run Controller and Strategic Retries
 Objective: process postings from the pool until the target number of successful applications has been reached or the pool is exhausted.
@@ -234,7 +234,7 @@ Current gap:
 ## Current Assessment
 The repository has already cleared the hardest foundational engineering work for deterministic automation. It is no longer a prototype scraper; it is a functioning single-job execution core with contracts, orchestration, and tests.
 
-Post-milestone integration gaps and their current resolution state are tracked in [integration-gaps.md](/home/shawn/Documents/auto-apply/docs/integration-gaps.md).
+Post-milestone integration gaps and their current resolution state are tracked in [integration-gaps.md](integration-gaps.md).
 
 Relative to the autonomous system design, the project now has:
 - a complete deterministic runtime

@@ -25,6 +25,17 @@ OpenClaw skill and deterministic runtime for job-application automation, with Pl
 4. In OpenClaw, discover the skill and invoke its job-application operations through the skill interface.
 5. Start with non-submitting or dry-run flows before enabling real submission behavior.
 
+## Mac Mini Local Install
+
+```bash
+git clone https://github.com/wangltsss/auto-job-apply "$HOME/auto-apply"
+cd "$HOME/auto-apply"
+npm ci
+npm run setup:device
+npm run install:openclaw-skill
+npm run tool:skill -- describe
+```
+
 ## OpenClaw usage
 This project is intended to be used through OpenClaw as a skill-backed tool surface.
 
@@ -36,7 +47,7 @@ The user-facing integration model is:
 
 The local `tool:*` commands are implementation details of the skill runtime and MCP surface. They are not the primary user interface.
 
-The repository now also exposes a stable package-facing root export at [index.ts](/home/shawn/Documents/auto-apply/index.ts) for programmatic use.
+The repository now also exposes a stable package-facing root export at [index.ts](index.ts) for programmatic use.
 The repository also exposes a skill-facing adapter command for OpenClaw-side operation discovery and invocation.
 The preferred OpenClaw-side shortcuts are `/ingest` and `/apply`.
 

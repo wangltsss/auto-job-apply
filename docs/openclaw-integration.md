@@ -13,10 +13,10 @@ The repository is the deterministic runtime and stateful backend exposed to Open
 Playwright MCP is the adopted browser-level MCP layer used when OpenClaw needs MCP-mediated browser access.
 
 The formal duty boundary between OpenClaw and the runtime is defined in:
-- [docs/openclaw-runtime-contract.md](/home/shawn/Documents/auto-apply/docs/openclaw-runtime-contract.md)
-- [docs/package-api.md](/home/shawn/Documents/auto-apply/docs/package-api.md)
-- [docs/skill-contract.md](/home/shawn/Documents/auto-apply/docs/skill-contract.md)
-- [docs/incident-manager.md](/home/shawn/Documents/auto-apply/docs/incident-manager.md)
+- [docs/openclaw-runtime-contract.md](openclaw-runtime-contract.md)
+- [docs/package-api.md](package-api.md)
+- [docs/skill-contract.md](skill-contract.md)
+- [docs/incident-manager.md](incident-manager.md)
 
 The skill surface includes:
 - preferred slash-command affordances for common actions

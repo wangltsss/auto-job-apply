@@ -29,7 +29,7 @@ Browser-level MCP transport is delegated to Playwright MCP rather than this pack
 
 ## Public Entry Point
 The package root entry point is:
-- [index.ts](/home/shawn/Documents/auto-apply/index.ts)
+- [index.ts](../index.ts)
 
 The published package surface is defined in terms of stable service-level operations rather than raw module namespace exports.
 
@@ -188,8 +188,8 @@ The package API exists above those commands as the programmatic contract for ext
 The skill adapter is the executable bridge that maps OpenClaw-side skill calls onto this package API.
 
 The adapter is implemented by:
-- [skill-adapter/index.ts](/home/shawn/Documents/auto-apply/skill-adapter/index.ts)
-- [tools/skill-cli.ts](/home/shawn/Documents/auto-apply/tools/skill-cli.ts)
+- [skill-adapter/index.ts](../skill-adapter/index.ts)
+- [tools/skill-cli.ts](../tools/skill-cli.ts)
 
 The package API remains the stable programmatic layer beneath that adapter.
 

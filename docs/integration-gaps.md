@@ -17,9 +17,9 @@ Resolution:
 - the adapter exposes preferred slash-command affordances for common actions
 
 Primary artifacts:
-- [tools/skill-cli.ts](/home/shawn/Documents/auto-apply/tools/skill-cli.ts)
-- [skill-adapter/index.ts](/home/shawn/Documents/auto-apply/skill-adapter/index.ts)
-- [skill-adapter/dispatch.ts](/home/shawn/Documents/auto-apply/skill-adapter/dispatch.ts)
+- [tools/skill-cli.ts](../tools/skill-cli.ts)
+- [skill-adapter/index.ts](../skill-adapter/index.ts)
+- [skill-adapter/dispatch.ts](../skill-adapter/dispatch.ts)
 
 ### 2. Machine-Readable Skill Discovery
 Status: `Resolved`
@@ -33,8 +33,8 @@ Resolution:
 - the `describe_operations` operation returns the stable operation list and summaries
 
 Primary artifacts:
-- [skill-adapter/operations.ts](/home/shawn/Documents/auto-apply/skill-adapter/operations.ts)
-- [tools/skill-cli.ts](/home/shawn/Documents/auto-apply/tools/skill-cli.ts)
+- [skill-adapter/operations.ts](../skill-adapter/operations.ts)
+- [tools/skill-cli.ts](../tools/skill-cli.ts)
 
 ### 3. Skill Adapter Verification
 Status: `Resolved`
@@ -47,7 +47,7 @@ Resolution:
 - adapter contract tests now verify help, discovery, invocation, and failure-envelope behavior
 
 Primary artifacts:
-- [tests/skill-cli.spec.ts](/home/shawn/Documents/auto-apply/tests/skill-cli.spec.ts)
+- [tests/skill-cli.spec.ts](../tests/skill-cli.spec.ts)
 
 ### 4. OpenClaw Registration Format
 Status: `External`
