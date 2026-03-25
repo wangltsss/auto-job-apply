@@ -17,6 +17,7 @@
   "include": [
     "index.ts",
     "application-ledger/**/*.ts",
+    "incident-manager/**/*.ts",
     "package-api/**/*.ts",
     "playwright/**/*.ts",
     "job-pool/**/*.ts",

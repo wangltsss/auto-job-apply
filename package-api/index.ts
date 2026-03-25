@@ -1,9 +1,12 @@
 import { ingestJobs, getJob } from '../job-pool/index.js';
+import { listIncidents } from '../incident-manager/index.js';
 import { queryLedger as queryLedgerInternal } from '../application-ledger/index.js';
 import { getRun, listRuns, runController } from '../run-controller/index.js';
 import type {
   EnqueueJobInput,
   EnqueueJobResult,
+  QueryIncidentInput,
+  QueryIncidentResult,
   QueryJobInput,
   QueryJobResult,
   QueryLedgerInput,
@@ -39,6 +42,7 @@ export async function startRun(input: StartRunInput): Promise<StartRunResult> {
     targetSuccessCount: input.target_success_count,
     jobPoolPath: input.job_pool_path,
     runStorePath: input.run_store_path,
+    incidentStorePath: input.incident_store_path,
     activeRunLockPath: input.active_run_lock_path,
     ledgerStorePath: input.ledger_store_path,
     storageStatePath: input.storage_state_path,
@@ -92,9 +96,26 @@ export async function queryLedger(input: QueryLedgerInput): Promise<QueryLedgerR
   };
 }
 
+export async function queryIncidents(input: QueryIncidentInput): Promise<QueryIncidentResult> {
+  const incidents = await listIncidents(
+    {
+      status: input.status,
+      limit: input.limit
+    },
+    input.storePath
+  );
+
+  return {
+    count: incidents.length,
+    incidents
+  };
+}
+
 export type {
   EnqueueJobInput,
   EnqueueJobResult,
+  QueryIncidentInput,
+  QueryIncidentResult,
   QueryJobInput,
   QueryJobResult,
   QueryLedgerInput,

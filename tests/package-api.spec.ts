@@ -3,8 +3,10 @@ import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { expect, test } from '@playwright/test';
 import { runExecutor } from '../executor/index.js';
+import { recordFailureIncident } from '../incident-manager/index.js';
 import {
   enqueueJob,
+  queryIncidents,
   queryJob,
   queryLedger,
   queryRun,
@@ -46,6 +48,8 @@ test('package api starts and queries runs', async () => {
   const tempDir = await mkdtemp(join(tmpdir(), 'package-api-runs-'));
   const jobPoolPath = join(tempDir, 'jobs.json');
   const runStorePath = join(tempDir, 'runs.json');
+  const incidentStorePath = join(tempDir, 'incidents.json');
+  const activeRunLockPath = join(tempDir, 'active-run.lock');
   const profilePath = join(tempDir, 'profile.json');
 
   try {
@@ -68,6 +72,8 @@ test('package api starts and queries runs', async () => {
       target_success_count: 1,
       job_pool_path: jobPoolPath,
       run_store_path: runStorePath,
+      incident_store_path: incidentStorePath,
+      active_run_lock_path: activeRunLockPath,
       applicant_profile: applicantProfile,
       mock_openclaw_raw_output_path: resolve('examples/fixtures/valid-openclaw-response.json'),
       mock_execution: true
@@ -122,6 +128,37 @@ test('package api queries ledger records', async () => {
 
     expect(result.count).toBeGreaterThan(0);
     expect(Array.isArray(result.records)).toBeTruthy();
+  } finally {
+    await rm(tempDir, { recursive: true, force: true });
+  }
+});
+
+test('package api queries active incidents', async () => {
+  const tempDir = await mkdtemp(join(tmpdir(), 'package-api-incidents-'));
+  const incidentStorePath = join(tempDir, 'incidents.json');
+
+  try {
+    await recordFailureIncident(
+      {
+        detected_at: '2099-03-25T00:00:00.000Z',
+        application_url: 'https://jobs.example.test/apply/123',
+        failure_category: 'session',
+        failure_code: 'session_state_invalid',
+        run_id: 'run_1',
+        job_id: 'job_1',
+        pipeline_artifact_path: '/tmp/pipeline.json'
+      },
+      undefined,
+      incidentStorePath
+    );
+
+    const result = await queryIncidents({
+      status: 'active',
+      storePath: incidentStorePath
+    });
+
+    expect(result.count).toBe(1);
+    expect(Array.isArray(result.incidents)).toBeTruthy();
   } finally {
     await rm(tempDir, { recursive: true, force: true });
   }

@@ -5,6 +5,7 @@ import type {
   ClarificationItemRecord,
   FailureRecord
 } from '../application-ledger/types.js';
+import type { IncidentRecord, IncidentStatus } from '../incident-manager/types.js';
 import type { IngestJobInput, IngestJobResult, JobPostingRecord } from '../job-pool/types.js';
 import type { ApplicantProfile, ReasoningPolicyFlags } from '../reasoning/types.js';
 import type { RunControllerOptions, RunRecord, RunStatus } from '../run-controller/types.js';
@@ -35,6 +36,7 @@ export interface StartRunInput {
   target_success_count: number;
   job_pool_path?: string;
   run_store_path?: string;
+  incident_store_path?: string;
   active_run_lock_path?: string;
   ledger_store_path?: string;
   storage_state_path?: string;
@@ -87,4 +89,15 @@ export type LedgerQueryRecords =
 export interface QueryLedgerResult {
   count: number;
   records: LedgerQueryRecords;
+}
+
+export interface QueryIncidentInput {
+  status?: IncidentStatus;
+  limit?: number;
+  storePath?: string;
+}
+
+export interface QueryIncidentResult {
+  count: number;
+  incidents: IncidentRecord[];
 }

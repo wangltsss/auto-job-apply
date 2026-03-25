@@ -19,6 +19,13 @@ export interface RetryPolicy {
   retry_delays_ms: number[];
 }
 
+export interface IncidentPolicy {
+  repeated_failure_threshold: number;
+  repeated_failure_window_ms: number;
+  repeated_failure_cooldown_ms: number;
+  session_failure_cooldown_ms: number;
+}
+
 export interface RunAttemptRecord {
   attempt_id: string;
   job_id: string;
@@ -73,6 +80,8 @@ export interface RunControllerOptions {
   cdpEndpoint?: string;
   mockExecution?: boolean;
   retryPolicy?: Partial<RetryPolicy>;
+  incidentStorePath?: string;
+  incidentPolicy?: Partial<IncidentPolicy>;
 }
 
 export interface RunControllerResult {

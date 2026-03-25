@@ -61,3 +61,45 @@ export async function claimNextJob(runId: string, storePath?: string): Promise<{
     storePath: out.storePath
   };
 }
+
+export async function claimNextJobExcludingHosts(
+  runId: string,
+  blockedHosts: string[],
+  storePath?: string
+): Promise<{ claimed: ClaimedJobRecord | null; storePath: string }> {
+  const claimedAt = nowIso();
+  const normalizedBlockedHosts = new Set(blockedHosts.map((host) => host.toLowerCase()));
+  const out = await mutateJobPoolStore((store) => {
+    const candidate = [...store.jobs]
+      .filter((job) => isClaimable(job, claimedAt))
+      .filter((job) => {
+        const host = new URL(job.apply_url).hostname.toLowerCase();
+        return !normalizedBlockedHosts.has(host);
+      })
+      .sort(compareJobs)[0];
+
+    if (!candidate) {
+      return null;
+    }
+
+    const job = store.jobs.find((entry) => entry.job_id === candidate.job_id);
+    if (!job) {
+      return null;
+    }
+
+    job.status = 'attempting';
+    job.claimed_by_run_id = runId;
+    job.claimed_at = claimedAt;
+    job.last_attempt_started_at = claimedAt;
+
+    return {
+      job: { ...job },
+      attempt_number: job.attempt_count + 1
+    } satisfies ClaimedJobRecord;
+  }, storePath);
+
+  return {
+    claimed: out.result,
+    storePath: out.storePath
+  };
+}

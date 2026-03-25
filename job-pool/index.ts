@@ -1,4 +1,5 @@
 export { claimNextJob } from './claimNextJob.js';
+export { claimNextJobExcludingHosts } from './claimNextJob.js';
 export { finalizeJobAttempt } from './finalizeJobAttempt.js';
 export { getJob } from './getJob.js';
 export { ingestJobs } from './ingestJobs.js';

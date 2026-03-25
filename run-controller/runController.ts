@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto';
-import { claimNextJob, finalizeJobAttempt, loadJobPoolStore } from '../job-pool/index.js';
+import { claimNextJobExcludingHosts, finalizeJobAttempt, loadJobPoolStore } from '../job-pool/index.js';
+import { getActiveIncidents, getActiveIncidentHosts, recordFailureIncident } from '../incident-manager/index.js';
 import { runPipeline } from '../orchestration/pipeline.js';
 import type { PipelineRunResult } from '../orchestration/types.js';
 import { nowIso } from '../playwright/utils/text.js';
@@ -75,26 +76,31 @@ export async function runController(
       await upsertRunRecord(runRecord, runStorePath);
     };
 
-    await persist();
+      await persist();
 
     while (runRecord.success_count < runRecord.target_success_count) {
-      const claimOut = await claimNextJob(runRecord.run_id, options.jobPoolPath);
+      const blockedHosts = await getActiveIncidentHosts(options.incidentStorePath);
+      const claimOut = await claimNextJobExcludingHosts(runRecord.run_id, blockedHosts, options.jobPoolPath);
       if (!claimOut.claimed) {
         const jobPool = await loadJobPoolStore(options.jobPoolPath);
+        const activeIncidents = await getActiveIncidents(options.incidentStorePath);
         const nextRetryAt = jobPool.jobs
           .filter((job) => job.status === 'failed_retryable' && job.claimed_by_run_id === null && job.next_attempt_at)
           .map((job) => job.next_attempt_at as string)
           .sort()[0] ?? null;
+        const nextIncidentResumeAt = activeIncidents.map((incident) => incident.cooldown_until).sort()[0] ?? null;
 
-        if (!nextRetryAt) {
+        const nextResumeAt = [nextRetryAt, nextIncidentResumeAt].filter(Boolean).sort()[0] ?? null;
+
+        if (!nextResumeAt) {
           runRecord.status = 'exhausted';
           runRecord.ended_at = now();
           await persist();
           return { runRecord, runStorePath };
         }
 
-        const waitMs = Math.max(0, new Date(nextRetryAt).getTime() - new Date(now()).getTime());
-        runRecord.notes.push(`Waiting ${waitMs}ms for next strategic retry window at ${nextRetryAt}.`);
+        const waitMs = Math.max(0, new Date(nextResumeAt).getTime() - new Date(now()).getTime());
+        runRecord.notes.push(`Waiting ${waitMs}ms for next resume window at ${nextResumeAt}.`);
         await persist();
         await sleep(waitMs);
         continue;
@@ -168,6 +174,28 @@ export async function runController(
           exhausted ? null : nextAttemptAt
         )
       );
+
+      if (decision.category) {
+        const incidentOut = await recordFailureIncident(
+          {
+            detected_at: pipelineResult.artifact.ended_at,
+            application_url: job.apply_url,
+            failure_category: decision.category,
+            failure_code: pipelineResult.artifact.failure_code,
+            run_id: runRecord.run_id,
+            job_id: job.job_id,
+            pipeline_artifact_path: pipelineResult.pipelineArtifactPath
+          },
+          options.incidentPolicy,
+          options.incidentStorePath
+        );
+
+        if (incidentOut.openedIncident) {
+          runRecord.notes.push(
+            `Opened incident ${incidentOut.openedIncident.incident_id} for host ${incidentOut.openedIncident.host} until ${incidentOut.openedIncident.cooldown_until}.`
+          );
+        }
+      }
       await persist();
     }
 

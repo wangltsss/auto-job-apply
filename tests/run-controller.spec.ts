@@ -2,6 +2,7 @@ import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { expect, test } from '@playwright/test';
+import { listIncidents } from '../incident-manager/index.js';
 import { ingestJobs, loadJobPoolStore } from '../job-pool/index.js';
 import { runController } from '../run-controller/index.js';
 
@@ -9,6 +10,7 @@ test('runController retries a retryable failure and stops when target success co
   const tempDir = await mkdtemp(join(tmpdir(), 'run-controller-'));
   const jobPoolPath = join(tempDir, 'jobs.json');
   const runStorePath = join(tempDir, 'runs.json');
+  const incidentStorePath = join(tempDir, 'incidents.json');
   const lockPath = join(tempDir, 'active-run.lock');
 
   try {
@@ -25,6 +27,8 @@ test('runController retries a retryable failure and stops when target success co
         targetSuccessCount: 1,
         jobPoolPath,
         runStorePath,
+        incidentStorePath,
+        activeRunLockPath: lockPath,
         retryPolicy: {
           max_attempts_per_job: 3,
           retry_delays_ms: [0, 0]
@@ -77,6 +81,8 @@ test('runController marks terminal failures without retry and exhausts when pool
   const tempDir = await mkdtemp(join(tmpdir(), 'run-controller-terminal-'));
   const jobPoolPath = join(tempDir, 'jobs.json');
   const runStorePath = join(tempDir, 'runs.json');
+  const incidentStorePath = join(tempDir, 'incidents.json');
+  const lockPath = join(tempDir, 'active-run.lock');
 
   try {
     await ingestJobs([
@@ -90,7 +96,9 @@ test('runController marks terminal failures without retry and exhausts when pool
       {
         targetSuccessCount: 1,
         jobPoolPath,
-        runStorePath
+        runStorePath,
+        incidentStorePath,
+        activeRunLockPath: lockPath
       },
       {
         runPipeline: async ({ url, jobId }) => ({
@@ -134,6 +142,8 @@ test('runController prevents duplicate concurrent runs with an active-run lock',
   const secondJobPoolPath = join(tempDir, 'jobs-b.json');
   const firstRunStorePath = join(tempDir, 'runs-a.json');
   const secondRunStorePath = join(tempDir, 'runs-b.json');
+  const firstIncidentStorePath = join(tempDir, 'incidents-a.json');
+  const secondIncidentStorePath = join(tempDir, 'incidents-b.json');
   const activeRunLockPath = join(tempDir, 'active-run.lock');
 
   try {
@@ -145,6 +155,7 @@ test('runController prevents duplicate concurrent runs with an active-run lock',
         targetSuccessCount: 1,
         jobPoolPath: firstJobPoolPath,
         runStorePath: firstRunStorePath,
+        incidentStorePath: firstIncidentStorePath,
         activeRunLockPath
       },
       {
@@ -180,6 +191,7 @@ test('runController prevents duplicate concurrent runs with an active-run lock',
           targetSuccessCount: 1,
           jobPoolPath: secondJobPoolPath,
           runStorePath: secondRunStorePath,
+          incidentStorePath: secondIncidentStorePath,
           activeRunLockPath
         },
         {
@@ -191,6 +203,80 @@ test('runController prevents duplicate concurrent runs with an active-run lock',
     ).rejects.toThrow(/Timed out waiting for lock/);
 
     await firstRun;
+  } finally {
+    await rm(tempDir, { recursive: true, force: true });
+  }
+});
+
+test('runController opens incidents and skips blocked hosts while continuing on other hosts', async () => {
+  const tempDir = await mkdtemp(join(tmpdir(), 'run-controller-incidents-'));
+  const jobPoolPath = join(tempDir, 'jobs.json');
+  const runStorePath = join(tempDir, 'runs.json');
+  const incidentStorePath = join(tempDir, 'incidents.json');
+  const lockPath = join(tempDir, 'active-run.lock');
+
+  try {
+    await ingestJobs(
+      [
+        { source_url: 'https://jobs.example.test/apply/123', title: 'Engineer A' },
+        { source_url: 'https://jobs.example.test/apply/124', title: 'Engineer B' },
+        { source_url: 'https://other.example.test/apply/200', title: 'Designer' }
+      ],
+      jobPoolPath
+    );
+
+    const seen: string[] = [];
+    const result = await runController(
+      {
+        targetSuccessCount: 1,
+        jobPoolPath,
+        runStorePath,
+        activeRunLockPath: lockPath,
+        incidentStorePath,
+        incidentPolicy: {
+          repeated_failure_threshold: 1,
+          repeated_failure_window_ms: 60_000,
+          repeated_failure_cooldown_ms: 60_000,
+          session_failure_cooldown_ms: 60_000
+        }
+      },
+      {
+        runPipeline: async ({ url, jobId }) => {
+          seen.push(url);
+          const blockedHost = url.includes('jobs.example.test');
+          return {
+            pipelineArtifactPath: `/tmp/${jobId}.json`,
+            artifact: {
+              started_at: '2099-03-25T00:00:00.000Z',
+              ended_at: '2099-03-25T00:00:01.000Z',
+              job_id: jobId ?? null,
+              input_url: url,
+              stages_run: ['scrape', 'answer_plan', 'execute'],
+              scrape_artifact_path: '/tmp/form.json',
+              answer_plan_artifact_path: '/tmp/plan.json',
+              answer_plan_status: 'proceed',
+              execution_result_artifact_path: blockedHost ? null : '/tmp/exec.json',
+              final_status: blockedHost ? 'error' : 'success',
+              failure_stage: blockedHost ? 'execute' : null,
+              failure_code: blockedHost ? 'session_state_invalid' : null,
+              notes: blockedHost ? ['session_state_invalid: auth expired'] : []
+            }
+          };
+        },
+        sleep: async () => undefined
+      }
+    );
+
+    const store = await loadJobPoolStore(jobPoolPath);
+    const incidents = await listIncidents({ status: 'active' }, incidentStorePath);
+
+    expect(result.runRecord.status).toBe('completed');
+    expect(result.runRecord.success_count).toBe(1);
+    expect(seen).toEqual(['https://jobs.example.test/apply/123', 'https://other.example.test/apply/200']);
+    expect(store.jobs.find((job) => job.title === 'Engineer B')?.status).toBe('queued');
+    expect(incidents).toHaveLength(1);
+    expect(incidents[0]?.host).toBe('jobs.example.test');
+    expect(incidents[0]?.failure_category).toBe('session');
   } finally {
     await rm(tempDir, { recursive: true, force: true });
   }
