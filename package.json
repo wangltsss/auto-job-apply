@@ -10,6 +10,7 @@
   },
   "scripts": {
     "setup:device": "bash scripts/bootstrap-device.sh",
+    "install:openclaw-skill": "bash scripts/install-openclaw-skill.sh",
     "doctor": "bash scripts/doctor.sh",
     "deploy:device": "bash scripts/deploy-on-device.sh",
     "build": "tsc -p tsconfig.json",
