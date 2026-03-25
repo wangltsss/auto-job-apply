@@ -10,6 +10,9 @@ MCP is the external protocol layer used to expose those modules as structured to
 OpenClaw is the orchestrator.
 The repository is the deterministic runtime and stateful backend exposed to OpenClaw through MCP-compatible tool operations.
 
+The formal duty boundary between OpenClaw and the runtime is defined in:
+- [docs/openclaw-runtime-contract.md](/home/shawn/Documents/auto-apply/docs/openclaw-runtime-contract.md)
+
 The skill surface includes:
 - scraping operations
 - answer-plan generation operations
@@ -40,6 +43,7 @@ From the user perspective, the expected flow is:
 - let OpenClaw discover the skill
 - invoke the skill through OpenClaw prompts or task orchestration
 - allow OpenClaw to call the exposed MCP operations as needed
+- rely on OpenClaw to make eligibility and anti-bot go/no-go decisions before deterministic execution proceeds
 
 ## Before autonomous submit
 - Keep `--submit` explicit and gated.

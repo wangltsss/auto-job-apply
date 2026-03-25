@@ -43,5 +43,6 @@ The local `tool:*` commands are implementation details of the skill runtime and 
 - Answer plan contract: `docs/answer-plan-contract.md`
 - Reasoning bridge: `docs/reasoning-bridge.md`
 - Executor: `docs/executor.md`
+- OpenClaw/runtime duty boundary: `docs/openclaw-runtime-contract.md`
 - Application ledger: `docs/application-ledger.md`
 - Deployment: `docs/deployment.md`
