@@ -9,6 +9,7 @@ This document defines the architecture, control model, data contracts, and opera
 The system combines:
 - deterministic browser automation for application scraping and submission
 - agent-assisted questionnaire reasoning through Clawdbot
+- MCP-based external tool integration
 - persistent job-pool and application-ledger state
 - structured reporting for successful, failed, and uncertain outcomes
 
@@ -24,6 +25,7 @@ The system is responsible for:
 - executing job applications deterministically
 - retrying recoverable failures
 - logging exact provenance for successful and failed attempts
+- exposing stable MCP-compatible operations for external orchestration
 - stopping when a requested number of successful applications has been reached or no eligible jobs remain
 
 The system is not responsible for:
@@ -34,6 +36,7 @@ The system is not responsible for:
 ## Design Principles
 - Deterministic execution: page interaction, selector resolution, and submission behavior are owned by the repository runtime and do not depend on free-form agent behavior during execution.
 - Structured reasoning: Clawdbot may infer answers to underspecified questions, but all reasoning outputs must be converted into validated structured plan artifacts before execution.
+- MCP interoperability: external orchestration is exposed through stable, tool-shaped operations that can be mapped directly into an MCP server surface.
 - Durable state: job-pool state, attempts, and final application records must be stored durably and independently from ephemeral runtime memory.
 - Provenance: every submitted answer must be traceable to an explicit source category.
 - Bounded autonomy: the system operates autonomously within explicit policy, confidence, and support boundaries.
@@ -42,6 +45,7 @@ The system is not responsible for:
 ## System Overview
 The system consists of five primary components:
 - job pool
+- MCP integration surface
 - Clawdbot orchestration interface
 - deterministic runtime
 - application ledger
@@ -97,6 +101,17 @@ Clawdbot is not responsible for:
 - selector selection
 - runtime recovery tactics
 - direct manipulation of form controls
+
+### MCP Integration Surface
+The MCP integration surface is the standard external interface for tool-based orchestration.
+
+The MCP integration surface is responsible for:
+- exposing repository capabilities as stable tool operations
+- preserving structured input and output contracts
+- mapping external tool calls to internal deterministic runtime modules
+- separating transport/protocol concerns from application logic
+
+The MCP surface does not replace the internal runtime. It is the protocol boundary through which Clawdbot and other MCP clients interact with the repository.
 
 ### Deterministic Runtime
 The deterministic runtime is the execution core of the repository.
@@ -198,6 +213,11 @@ Clawdbot owns:
 - policy context
 - inference for underspecified questionnaire fields
 - final reporting
+
+The MCP integration surface owns:
+- tool discovery and invocation boundaries
+- structured transport of repository operations
+- machine-readable request and response envelopes
 
 The repository runtime owns:
 - job claiming and progression
@@ -424,7 +444,7 @@ The system must:
 Unsupported authentication gates, including captcha or mandatory manual verification, must be classified as `unsupported` unless the runtime explicitly supports them.
 
 ## External Interface Contract
-The package and OpenClaw skill must expose structured operations rather than free-form browser commands.
+The package and OpenClaw skill expose structured operations through an MCP-compatible tool surface rather than free-form browser commands.
 
 ### Enqueue Jobs
 Input:
@@ -468,6 +488,17 @@ Output:
 - last attempt result
 - success or failure record, if finalized
 
+## MCP Mapping
+The external interface is defined so that each operation can be represented directly as an MCP tool.
+
+The MCP layer must preserve:
+- structured input validation
+- machine-readable success and failure envelopes
+- stable operation names
+- deterministic delegation into repository modules
+
+The MCP layer does not permit free-form browser control. Browser execution remains owned by the deterministic runtime.
+
 ## Run Result Contract
 A completed run result must contain:
 - `run_id`
@@ -509,7 +540,7 @@ Each per-job result must contain:
 
 ## Acceptance Criteria
 This design is satisfied when:
-- the package exposes structured job-ingestion, run-control, and status-query interfaces
+- the package exposes structured job-ingestion, run-control, and status-query interfaces through an MCP-compatible tool surface
 - Clawdbot participates in answer inference without owning DOM execution
 - the runtime executes applications deterministically through validated plans
 - job-pool state and application-ledger state are durable and auditable
@@ -521,4 +552,4 @@ This design is satisfied when:
 ## Conclusion
 This repository is defined as a bounded-autonomy job application system and OpenClaw skill package.
 
-Clawdbot provides orchestration and reasoning assistance. The repository runtime provides deterministic browser execution, durable state handling, retry control, and auditability. Together, these components support autonomous application runs that terminate on success-count completion, pool exhaustion, or explicit policy boundaries.
+Clawdbot provides orchestration and reasoning assistance. The MCP integration surface provides protocol-standard tool access. The repository runtime provides deterministic browser execution, durable state handling, retry control, and auditability. Together, these components support autonomous application runs that terminate on success-count completion, pool exhaustion, or explicit policy boundaries.

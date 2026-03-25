@@ -4,7 +4,7 @@
 This document maps implementation milestones for the autonomous Clawdbot system defined in [autonomous-clawdbot-design.md](/home/shawn/Documents/auto-apply/docs/autonomous-clawdbot-design.md) and identifies the current project position.
 
 ## Current Position
-The project is currently at `M2: Deterministic Single-Job Runtime`, with parts of `M3: Unified Tooling and Run Invocation` already present.
+The project is currently at `M5: Application Ledger and Provenance`, with `M6` and beyond still pending.
 
 The following capabilities are implemented today:
 - deterministic ATS form scraping
@@ -13,17 +13,18 @@ The following capabilities are implemented today:
 - OpenClaw reasoning bridge
 - deterministic executor with dry-run-first behavior
 - pipeline orchestration across scrape, answer-plan, and execute stages
+- stable tool entrypoints suitable for MCP wrapping
+- durable job pool with manual and file-based ingestion
+- durable application ledger for attempts and outcomes
 - machine-readable artifacts for scrape, answer-plan, execution, and pipeline runs
 - baseline tests for schema validation, executor behavior, reasoning bridge behavior, and orchestration
 
 The following capabilities are not yet implemented as system primitives:
-- durable job pool
-- durable application ledger
 - run controller based on target successful applications
 - strategic retry scheduling across attempts
 - answer provenance tracking
 - unresolved uncertainty handling in final reports
-- Clawdbot-facing run/status interfaces as a package/skill contract
+- MCP server surface for direct protocol integration
 
 ## Milestone Definitions
 
@@ -100,16 +101,7 @@ Required outcomes:
 - pipeline CLI exists
 - stage wrappers and top-level pipeline artifacts exist
 
-Status: `Mostly Complete`
-
-Completed:
-- scrape, answer-plan, execution, and pipeline CLIs exist
-- orchestration stage wrappers exist
-- top-level pipeline artifacts exist
-
-Remaining:
-- package-facing interfaces are still CLI-oriented rather than formal runtime APIs for an OpenClaw skill
-- current pipeline is stage-oriented, not success-targeted run-oriented
+Status: `Complete`
 
 Evidence:
 - [tools/scrape-cli.ts](/home/shawn/Documents/auto-apply/tools/scrape-cli.ts)
@@ -118,6 +110,7 @@ Evidence:
 - [tools/pipeline-cli.ts](/home/shawn/Documents/auto-apply/tools/pipeline-cli.ts)
 - [orchestration/pipeline.ts](/home/shawn/Documents/auto-apply/orchestration/pipeline.ts)
 - [docs/orchestration.md](/home/shawn/Documents/auto-apply/docs/orchestration.md)
+- [docs/openclaw-integration.md](/home/shawn/Documents/auto-apply/docs/openclaw-integration.md)
 
 ## M4: Job Pool and Ingestion Layer
 Objective: introduce a durable pool of pre-eligible job postings with normalization, deduplication, and ingestion workflows.
@@ -129,16 +122,17 @@ Required outcomes:
 - canonicalization and deduplication exist
 - job lifecycle state is persisted
 
-Status: `Not Started`
-
-Missing against design:
-- no durable job-pool model exists
-- no ingestion API or CLI exists for job submission
-- no canonical job record contract is implemented
-- no persistent lifecycle state exists for postings
+Status: `Complete`
 
 Primary design reference:
 - [docs/autonomous-clawdbot-design.md](/home/shawn/Documents/auto-apply/docs/autonomous-clawdbot-design.md)
+
+Evidence:
+- [job-pool/index.ts](/home/shawn/Documents/auto-apply/job-pool/index.ts)
+- [tools/job-pool-cli.ts](/home/shawn/Documents/auto-apply/tools/job-pool-cli.ts)
+- [docs/job-pool.md](/home/shawn/Documents/auto-apply/docs/job-pool.md)
+- [tests/job-pool.spec.ts](/home/shawn/Documents/auto-apply/tests/job-pool.spec.ts)
+- [tests/job-pool-cli.spec.ts](/home/shawn/Documents/auto-apply/tests/job-pool-cli.spec.ts)
 
 ## M5: Application Ledger and Provenance
 Objective: persist attempts and final application outcomes as first-class system records rather than only filesystem artifacts.
@@ -150,11 +144,22 @@ Required outcomes:
 - answer provenance is persisted
 - artifact references are linked from durable records
 
-Status: `Not Started`
+Status: `Partially Complete`
 
-Current gap:
-- artifacts are written today, but there is no durable ledger model for jobs, attempts, successes, or failures
-- answer provenance and uncertain-answer tracking do not exist as stored system records
+Completed:
+- durable attempt records exist
+- durable success and failure records exist
+- artifact references are linked from ledger records
+
+Remaining:
+- explicit provenance classes are not yet persisted
+- unresolved uncertainty records are not yet stored as first-class ledger entities
+
+Evidence:
+- [application-ledger/index.ts](/home/shawn/Documents/auto-apply/application-ledger/index.ts)
+- [application-ledger/recordExecutionOutcome.ts](/home/shawn/Documents/auto-apply/application-ledger/recordExecutionOutcome.ts)
+- [docs/application-ledger.md](/home/shawn/Documents/auto-apply/docs/application-ledger.md)
+- [tests/application-ledger.spec.ts](/home/shawn/Documents/auto-apply/tests/application-ledger.spec.ts)
 
 ## M6: Run Controller and Strategic Retries
 Objective: process postings from the pool until the target number of successful applications has been reached or the pool is exhausted.
@@ -191,11 +196,11 @@ Current gap:
 - no explicit Clawdbot integration contract exists yet
 
 ## M8: Published Package and OpenClaw Skill Surface
-Objective: publish the project as a reusable package and OpenClaw skill with stable external operations.
+Objective: publish the project as a reusable package, OpenClaw skill, and MCP-integrated tool surface with stable external operations.
 
 Required outcomes:
 - package-facing API surface exists
-- skill-facing commands are defined and documented
+- skill-facing and MCP-facing commands are defined and documented
 - enqueue, start-run, query-run, and query-job interfaces exist
 - external result contracts are stable and documented
 
@@ -203,6 +208,7 @@ Status: `Not Started`
 
 Current gap:
 - the repository exposes internal CLIs, but not a finalized package API or skill contract
+- no MCP server surface is implemented
 - external run-level interfaces defined in the design doc are not implemented
 
 ## M9: Incident Handling and Operational Hardening
@@ -227,9 +233,9 @@ Current gap:
 | M0 | Contracts and Repository Foundation | Complete |
 | M1 | Deterministic Form Extraction | Complete |
 | M2 | Deterministic Single-Job Runtime | Complete |
-| M3 | Unified Tooling and Pipeline Invocation | Mostly Complete |
-| M4 | Job Pool and Ingestion Layer | Not Started |
-| M5 | Application Ledger and Provenance | Not Started |
+| M3 | Unified Tooling and Pipeline Invocation | Complete |
+| M4 | Job Pool and Ingestion Layer | Complete |
+| M5 | Application Ledger and Provenance | Partially Complete |
 | M6 | Run Controller and Strategic Retries | Not Started |
 | M7 | Clawdbot Reasoning Participation | Not Started |
 | M8 | Published Package and OpenClaw Skill Surface | Not Started |
@@ -238,8 +244,9 @@ Current gap:
 ## Current Assessment
 The repository has already cleared the hardest foundational engineering work for deterministic automation. It is no longer a prototype scraper; it is a functioning single-job execution core with contracts, orchestration, and tests.
 
-Relative to the autonomous system design, the project is positioned at the boundary between:
-- completed deterministic runtime work
-- not-yet-started autonomous system state management
+Relative to the autonomous system design, the project now has:
+- a complete deterministic runtime
+- a durable job pool
+- a first ledger slice for execution outcomes
 
-The next milestone boundary is `M4`. That is the point where the repository stops being a single-job pipeline and becomes a pool-backed autonomous application system.
+The next milestone boundary is `M6`. That is the point where the repository stops being a collection of durable subsystems and becomes a pool-backed autonomous execution system.

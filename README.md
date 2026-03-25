@@ -1,11 +1,12 @@
 # Auto-Apply Pipeline Contracts
 
-TypeScript + Playwright project focused on deterministic job-application automation contracts.
+OpenClaw skill and deterministic runtime for job-application automation.
 
 ## Implemented layers
 - Scraper/collector layer for extracting ATS application forms
 - Reasoning bridge for OpenClaw prompt/run/parse/validate/write
-- Executor CLI for deterministic answer-plan application on real pages (dry-run by default)
+- Deterministic execution runtime for validated answer plans
+- Job-pool and application-ledger persistence layers
 - Answer Plan contract for reasoning output validation
 
 ## Scope
@@ -17,23 +18,20 @@ TypeScript + Playwright project focused on deterministic job-application automat
 - Does **not** do new reasoning during execution
 
 ## Quick start
-```bash
-npm install
-npm run setup:device
-npm run tool:scrape -- --url "https://jobs.example.com/apply"
-npm run tool:answer-plan -- --form-artifact ./artifacts/forms/<form>.json
-npm run tool:execute -- --form-artifact ./artifacts/forms/<form>.json --answer-plan-artifact ./artifacts/answer-plans/<plan>.json --mock
-npm run tool:pipeline -- --url "https://jobs.example.com/apply" --mode full --dry-run
-```
+1. Install this project as an OpenClaw skill in the environment where OpenClaw runs.
+2. Register or expose the repository's MCP tool surface to OpenClaw.
+3. In OpenClaw, discover the skill and invoke its job-application operations through the skill interface.
+4. Start with non-submitting or dry-run flows before enabling real submission behavior.
 
-## Stable entrypoints
-- `npm run tool:scrape`
-- `npm run tool:answer-plan`
-- `npm run tool:execute`
-- `npm run tool:job-pool`
-- `npm run tool:pipeline`
+## OpenClaw usage
+This project is intended to be used through OpenClaw as a skill-backed tool surface.
 
-The `example:*` scripts are development demos and fixtures, not the stable integration interface.
+The user-facing integration model is:
+- OpenClaw discovers the skill
+- OpenClaw invokes the repository through MCP-compatible operations
+- the repository executes deterministic scrape, reasoning, execution, job-pool, and ledger modules behind that interface
+
+The local `tool:*` commands are implementation details of the skill runtime and MCP surface. They are not the primary user interface.
 
 ## Contracts
 - Extracted form schema: `playwright/schemas/form.schema.json`
