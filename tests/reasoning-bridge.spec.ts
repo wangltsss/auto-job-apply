@@ -170,28 +170,41 @@ test('buildOpenClawInvocation supports explicit sessionId and to routing options
   }
 });
 
-test('buildOpenClawInvocation throws before spawn when routing is missing', () => {
+test('buildOpenClawInvocation falls back to current runtime agent when routing is missing', () => {
   const previousAgent = process.env.OPENCLAW_AGENT_ID;
+  const previousAgentAlias = process.env.OPENCLAW_AGENT;
+  const previousRuntimeAgent = process.env.OPENCLAW_RUNTIME_AGENT;
   const previousSession = process.env.OPENCLAW_SESSION_ID;
   const previousTo = process.env.OPENCLAW_TO;
   delete process.env.OPENCLAW_AGENT_ID;
+  delete process.env.OPENCLAW_AGENT;
+  delete process.env.OPENCLAW_RUNTIME_AGENT;
   delete process.env.OPENCLAW_SESSION_ID;
   delete process.env.OPENCLAW_TO;
 
   try {
-    expect(() => buildOpenClawInvocation('hello')).toThrow(ReasoningBridgeError);
-
-    try {
-      buildOpenClawInvocation('hello');
-    } catch (error) {
-      expect((error as ReasoningBridgeError).code).toBe('openclaw_invocation_failure');
-      expect((error as ReasoningBridgeError).message).toContain('routing is missing');
-    }
+    expect(buildOpenClawInvocation('hello')).toEqual({
+      command: 'openclaw',
+      args: ['agent', '--local', '--agent', 'main', '--message', 'hello'],
+      stdinPrompt: false
+    });
   } finally {
     if (previousAgent === undefined) {
       delete process.env.OPENCLAW_AGENT_ID;
     } else {
       process.env.OPENCLAW_AGENT_ID = previousAgent;
+    }
+
+    if (previousAgentAlias === undefined) {
+      delete process.env.OPENCLAW_AGENT;
+    } else {
+      process.env.OPENCLAW_AGENT = previousAgentAlias;
+    }
+
+    if (previousRuntimeAgent === undefined) {
+      delete process.env.OPENCLAW_RUNTIME_AGENT;
+    } else {
+      process.env.OPENCLAW_RUNTIME_AGENT = previousRuntimeAgent;
     }
 
     if (previousSession === undefined) {

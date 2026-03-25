@@ -9,7 +9,9 @@ export interface OpenClawInvocation {
 }
 
 function resolveDefaultRouting(options: OpenClawRunnerOptions): string[] {
-  const agent = options.agent ?? process.env.OPENCLAW_AGENT_ID;
+  const implicitAgentId =
+    process.env.OPENCLAW_AGENT_ID ?? process.env.OPENCLAW_AGENT ?? process.env.OPENCLAW_RUNTIME_AGENT ?? 'main';
+  const agent = options.agent ?? implicitAgentId;
   if (agent) {
     return ['--agent', agent];
   }

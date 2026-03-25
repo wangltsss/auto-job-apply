@@ -36,12 +36,15 @@ By default, the bridge invokes OpenClaw through:
 Default routing resolution order is:
 - `openClaw.agent`
 - `OPENCLAW_AGENT_ID`
+- `OPENCLAW_AGENT`
+- `OPENCLAW_RUNTIME_AGENT`
+- implicit fallback: `main` (current runtime agent default)
 - `openClaw.sessionId`
 - `OPENCLAW_SESSION_ID`
 - `openClaw.to`
 - `OPENCLAW_TO`
 
-If no routing value is available, the bridge fails before spawn with `openclaw_invocation_failure`.
+With the implicit fallback enabled, the bridge will auto-route to `--agent main` when no explicit routing is provided.
 
 The bridge now requires OpenClaw to emit answer provenance on every answer item:
 - `known_profile`
