@@ -7,12 +7,205 @@ import { enforceAnswerPlanPolicy } from '../reasoning/enforceAnswerPlanPolicy.js
 import { ReasoningBridgeError } from '../reasoning/errors.js';
 import { parseAndValidateAnswerPlan } from '../reasoning/parseAnswerPlan.js';
 
-test('buildOpenClawInvocation defaults to agent message mode', () => {
-  expect(buildOpenClawInvocation('hello')).toEqual({
-    command: 'openclaw',
-    args: ['agent', '--local', '--message', 'hello'],
-    stdinPrompt: false
-  });
+test('buildOpenClawInvocation defaults to agent routing when OPENCLAW_AGENT_ID is set', () => {
+  const previous = process.env.OPENCLAW_AGENT_ID;
+  process.env.OPENCLAW_AGENT_ID = 'agent_main';
+
+  try {
+    expect(buildOpenClawInvocation('hello')).toEqual({
+      command: 'openclaw',
+      args: ['agent', '--local', '--agent', 'agent_main', '--message', 'hello'],
+      stdinPrompt: false
+    });
+  } finally {
+    if (previous === undefined) {
+      delete process.env.OPENCLAW_AGENT_ID;
+    } else {
+      process.env.OPENCLAW_AGENT_ID = previous;
+    }
+  }
+});
+
+test('buildOpenClawInvocation prefers explicit routing options over environment fallbacks', () => {
+  const previousAgent = process.env.OPENCLAW_AGENT_ID;
+  process.env.OPENCLAW_AGENT_ID = 'agent_env';
+
+  try {
+    expect(
+      buildOpenClawInvocation('hello', {
+        agent: 'agent_option'
+      })
+    ).toEqual({
+      command: 'openclaw',
+      args: ['agent', '--local', '--agent', 'agent_option', '--message', 'hello'],
+      stdinPrompt: false
+    });
+
+    expect(
+      buildOpenClawInvocation('hello', {
+        sessionId: 'session_option'
+      })
+    ).toEqual({
+      command: 'openclaw',
+      args: ['agent', '--local', '--agent', 'agent_env', '--message', 'hello'],
+      stdinPrompt: false
+    });
+  } finally {
+    if (previousAgent === undefined) {
+      delete process.env.OPENCLAW_AGENT_ID;
+    } else {
+      process.env.OPENCLAW_AGENT_ID = previousAgent;
+    }
+  }
+});
+
+test('buildOpenClawInvocation falls back to session routing when agent routing is unavailable', () => {
+  const previousAgent = process.env.OPENCLAW_AGENT_ID;
+  const previousSession = process.env.OPENCLAW_SESSION_ID;
+  delete process.env.OPENCLAW_AGENT_ID;
+  process.env.OPENCLAW_SESSION_ID = 'session_123';
+
+  try {
+    expect(buildOpenClawInvocation('hello')).toEqual({
+      command: 'openclaw',
+      args: ['agent', '--local', '--session-id', 'session_123', '--message', 'hello'],
+      stdinPrompt: false
+    });
+  } finally {
+    if (previousAgent === undefined) {
+      delete process.env.OPENCLAW_AGENT_ID;
+    } else {
+      process.env.OPENCLAW_AGENT_ID = previousAgent;
+    }
+
+    if (previousSession === undefined) {
+      delete process.env.OPENCLAW_SESSION_ID;
+    } else {
+      process.env.OPENCLAW_SESSION_ID = previousSession;
+    }
+  }
+});
+
+test('buildOpenClawInvocation falls back to to routing when agent and session routing are unavailable', () => {
+  const previousAgent = process.env.OPENCLAW_AGENT_ID;
+  const previousSession = process.env.OPENCLAW_SESSION_ID;
+  const previousTo = process.env.OPENCLAW_TO;
+  delete process.env.OPENCLAW_AGENT_ID;
+  delete process.env.OPENCLAW_SESSION_ID;
+  process.env.OPENCLAW_TO = 'telegram:ops';
+
+  try {
+    expect(buildOpenClawInvocation('hello')).toEqual({
+      command: 'openclaw',
+      args: ['agent', '--local', '--to', 'telegram:ops', '--message', 'hello'],
+      stdinPrompt: false
+    });
+  } finally {
+    if (previousAgent === undefined) {
+      delete process.env.OPENCLAW_AGENT_ID;
+    } else {
+      process.env.OPENCLAW_AGENT_ID = previousAgent;
+    }
+
+    if (previousSession === undefined) {
+      delete process.env.OPENCLAW_SESSION_ID;
+    } else {
+      process.env.OPENCLAW_SESSION_ID = previousSession;
+    }
+
+    if (previousTo === undefined) {
+      delete process.env.OPENCLAW_TO;
+    } else {
+      process.env.OPENCLAW_TO = previousTo;
+    }
+  }
+});
+
+test('buildOpenClawInvocation supports explicit sessionId and to routing options', () => {
+  const previousAgent = process.env.OPENCLAW_AGENT_ID;
+  const previousSession = process.env.OPENCLAW_SESSION_ID;
+  const previousTo = process.env.OPENCLAW_TO;
+  delete process.env.OPENCLAW_AGENT_ID;
+  delete process.env.OPENCLAW_SESSION_ID;
+  delete process.env.OPENCLAW_TO;
+
+  try {
+    expect(
+      buildOpenClawInvocation('hello', {
+        sessionId: 'session_option'
+      })
+    ).toEqual({
+      command: 'openclaw',
+      args: ['agent', '--local', '--session-id', 'session_option', '--message', 'hello'],
+      stdinPrompt: false
+    });
+
+    expect(
+      buildOpenClawInvocation('hello', {
+        to: 'telegram:ops'
+      })
+    ).toEqual({
+      command: 'openclaw',
+      args: ['agent', '--local', '--to', 'telegram:ops', '--message', 'hello'],
+      stdinPrompt: false
+    });
+  } finally {
+    if (previousAgent === undefined) {
+      delete process.env.OPENCLAW_AGENT_ID;
+    } else {
+      process.env.OPENCLAW_AGENT_ID = previousAgent;
+    }
+
+    if (previousSession === undefined) {
+      delete process.env.OPENCLAW_SESSION_ID;
+    } else {
+      process.env.OPENCLAW_SESSION_ID = previousSession;
+    }
+
+    if (previousTo === undefined) {
+      delete process.env.OPENCLAW_TO;
+    } else {
+      process.env.OPENCLAW_TO = previousTo;
+    }
+  }
+});
+
+test('buildOpenClawInvocation throws before spawn when routing is missing', () => {
+  const previousAgent = process.env.OPENCLAW_AGENT_ID;
+  const previousSession = process.env.OPENCLAW_SESSION_ID;
+  const previousTo = process.env.OPENCLAW_TO;
+  delete process.env.OPENCLAW_AGENT_ID;
+  delete process.env.OPENCLAW_SESSION_ID;
+  delete process.env.OPENCLAW_TO;
+
+  try {
+    expect(() => buildOpenClawInvocation('hello')).toThrow(ReasoningBridgeError);
+
+    try {
+      buildOpenClawInvocation('hello');
+    } catch (error) {
+      expect((error as ReasoningBridgeError).code).toBe('openclaw_invocation_failure');
+      expect((error as ReasoningBridgeError).message).toContain('routing is missing');
+    }
+  } finally {
+    if (previousAgent === undefined) {
+      delete process.env.OPENCLAW_AGENT_ID;
+    } else {
+      process.env.OPENCLAW_AGENT_ID = previousAgent;
+    }
+
+    if (previousSession === undefined) {
+      delete process.env.OPENCLAW_SESSION_ID;
+    } else {
+      process.env.OPENCLAW_SESSION_ID = previousSession;
+    }
+
+    if (previousTo === undefined) {
+      delete process.env.OPENCLAW_TO;
+    } else {
+      process.env.OPENCLAW_TO = previousTo;
+    }
+  }
 });
 
 test('buildOpenClawInvocation supports prompt placeholders and stdin override', () => {

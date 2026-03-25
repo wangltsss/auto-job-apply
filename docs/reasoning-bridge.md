@@ -30,6 +30,19 @@ The reasoning bridge is the strict middle layer between scraper output and futur
 - `answer_plan_policy_enforcement_failed`
 
 ## Reasoning contract details
+By default, the bridge invokes OpenClaw through:
+- `openclaw agent --local --agent <id> --message <prompt>`
+
+Default routing resolution order is:
+- `openClaw.agent`
+- `OPENCLAW_AGENT_ID`
+- `openClaw.sessionId`
+- `OPENCLAW_SESSION_ID`
+- `openClaw.to`
+- `OPENCLAW_TO`
+
+If no routing value is available, the bridge fails before spawn with `openclaw_invocation_failure`.
+
 The bridge now requires OpenClaw to emit answer provenance on every answer item:
 - `known_profile`
 - `clawdbot_inferred`

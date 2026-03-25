@@ -8,6 +8,40 @@ export interface OpenClawInvocation {
   stdinPrompt: boolean;
 }
 
+function resolveDefaultRouting(options: OpenClawRunnerOptions): string[] {
+  const agent = options.agent ?? process.env.OPENCLAW_AGENT_ID;
+  if (agent) {
+    return ['--agent', agent];
+  }
+
+  const sessionId = options.sessionId ?? process.env.OPENCLAW_SESSION_ID;
+  if (sessionId) {
+    return ['--session-id', sessionId];
+  }
+
+  const to = options.to ?? process.env.OPENCLAW_TO;
+  if (to) {
+    return ['--to', to];
+  }
+
+  throw new ReasoningBridgeError(
+    'openclaw_invocation_failure',
+    'OpenClaw routing is missing. Set OPENCLAW_AGENT_ID or pass openClaw.agent.',
+    {
+      command: options.command ?? 'openclaw',
+      args: options.args ?? ['agent', '--local', '--message', '<prompt>'],
+      routing_sources_checked: [
+        'options.agent',
+        'OPENCLAW_AGENT_ID',
+        'options.sessionId',
+        'OPENCLAW_SESSION_ID',
+        'options.to',
+        'OPENCLAW_TO'
+      ]
+    }
+  );
+}
+
 export function buildOpenClawInvocation(prompt: string, options: OpenClawRunnerOptions = {}): OpenClawInvocation {
   const command = options.command ?? 'openclaw';
 
@@ -19,9 +53,11 @@ export function buildOpenClawInvocation(prompt: string, options: OpenClawRunnerO
     };
   }
 
+  const routingArgs = resolveDefaultRouting(options);
+
   return {
     command,
-    args: ['agent', '--local', '--message', prompt],
+    args: ['agent', '--local', ...routingArgs, '--message', prompt],
     stdinPrompt: false
   };
 }

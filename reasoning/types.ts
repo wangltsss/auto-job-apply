@@ -68,6 +68,9 @@ export interface ReasoningBridgeBuildInput {
 export interface OpenClawRunnerOptions {
   command?: string;
   args?: string[];
+  agent?: string;
+  sessionId?: string;
+  to?: string;
   stdinPrompt?: boolean;
   env?: NodeJS.ProcessEnv;
   timeoutMs?: number;
