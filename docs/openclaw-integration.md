@@ -37,6 +37,9 @@ It supplies browser-level MCP transport, while this repository remains responsib
 - application ledger persistence
 - run-controller behavior
 
+For unattended runs, configure a dedicated OpenClaw agent id such as `autoapply`.
+Do not use the shared `main` agent, because session-lock contention on shared state will stop reasoning turns.
+
 ## Internal command surface
 The repository implements the skill and MCP layer with local tool commands.
 Those commands are internal runtime entrypoints rather than the primary user interface.
