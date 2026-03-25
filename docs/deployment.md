@@ -52,6 +52,26 @@ The command prints JSON:
 - `ok: true` means toolchain looks ready.
 - `ok: false` includes machine-readable `issues`.
 
+## OpenClaw skill install
+
+After bootstrap, install the repository into the OpenClaw skills directory:
+
+```bash
+bash scripts/install-openclaw-skill.sh
+```
+
+Override the default target directory when needed:
+
+```bash
+bash scripts/install-openclaw-skill.sh --skills-dir "$HOME/.openclaw/skills" --name auto-apply
+```
+
+Install into a specific OpenClaw workspace:
+
+```bash
+bash scripts/install-openclaw-skill.sh --workspace-dir "$HOME/path/to/openclaw-workspace"
+```
+
 ## First-run smoke checks
 
 Scrape only:

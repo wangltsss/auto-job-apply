@@ -19,9 +19,11 @@ OpenClaw skill and deterministic runtime for job-application automation, with Pl
 
 ## Quick start
 1. Install this project as an OpenClaw skill in the environment where OpenClaw runs.
-2. Register or expose the repository's MCP tool surface to OpenClaw.
-3. In OpenClaw, discover the skill and invoke its job-application operations through the skill interface.
-4. Start with non-submitting or dry-run flows before enabling real submission behavior.
+2. Install the repository into the OpenClaw skills directory with `npm run install:openclaw-skill`.
+   For a workspace-local install, use `npm run install:openclaw-skill -- --workspace-dir <workspace_path>`.
+3. Register or expose the repository's MCP tool surface to OpenClaw.
+4. In OpenClaw, discover the skill and invoke its job-application operations through the skill interface.
+5. Start with non-submitting or dry-run flows before enabling real submission behavior.
 
 ## OpenClaw usage
 This project is intended to be used through OpenClaw as a skill-backed tool surface.
@@ -51,6 +53,7 @@ The preferred OpenClaw-side shortcuts are `/ingest` and `/apply`.
 - OpenClaw/runtime duty boundary: `docs/openclaw-runtime-contract.md`
 - Package API: `docs/package-api.md`
 - OpenClaw skill contract: `docs/skill-contract.md`
+- Skill install script: `scripts/install-openclaw-skill.sh`
 - Integration gaps: `docs/integration-gaps.md`
 - Application ledger: `docs/application-ledger.md`
 - Incident manager: `docs/incident-manager.md`

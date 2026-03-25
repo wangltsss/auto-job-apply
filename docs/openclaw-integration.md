@@ -61,6 +61,8 @@ Those commands are internal runtime entrypoints rather than the primary user int
 ## Usage in OpenClaw
 From the user perspective, the expected flow is:
 - install or register the skill with OpenClaw
+- optionally install the repository into the default OpenClaw skills directory with `bash scripts/install-openclaw-skill.sh`
+- for a workspace-local install, use `bash scripts/install-openclaw-skill.sh --workspace-dir <workspace_path>`
 - let OpenClaw discover the skill
 - invoke the skill through OpenClaw prompts or task orchestration
 - allow OpenClaw to call the exposed MCP operations as needed
