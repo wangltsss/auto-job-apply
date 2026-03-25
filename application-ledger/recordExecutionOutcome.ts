@@ -7,11 +7,32 @@ import type {
   ApplicationAttemptRecord,
   ApplicationSuccessRecord,
   AnswerSummaryRecord,
+  ClarificationItemRecord,
   FailureRecord
 } from './types.js';
 
 function buildStableId(prefix: string, input: string): string {
   return `${prefix}_${createHash('sha1').update(input).digest('hex').slice(0, 16)}`;
+}
+
+function inferProvenance(answer: AnswerPlan['answers'][number]): AnswerSummaryRecord['provenance'] {
+  if (answer.requires_human_review) {
+    return 'user_clarification_required';
+  }
+
+  const rationale = answer.rationale_short.toLowerCase();
+  if (
+    rationale.includes('direct profile') ||
+    rationale.includes('known ') ||
+    rationale.includes('resume path') ||
+    rationale.includes('preferred resume') ||
+    rationale.includes('demographic question skipped by policy') ||
+    rationale.includes('skipped demographic field by default policy')
+  ) {
+    return 'known_profile';
+  }
+
+  return 'clawdbot_inferred';
 }
 
 function summarizeAnswerPlan(answerPlan: AnswerPlan): AnswerSummaryRecord[] {
@@ -20,7 +41,8 @@ function summarizeAnswerPlan(answerPlan: AnswerPlan): AnswerSummaryRecord[] {
     answer_type: answer.answer_type,
     confidence: answer.confidence,
     rationale_short: answer.rationale_short,
-    requires_human_review: answer.requires_human_review
+    requires_human_review: answer.requires_human_review,
+    provenance: inferProvenance(answer)
   }));
 }
 
@@ -38,6 +60,7 @@ export async function recordExecutionOutcome(
 ): Promise<{ ledgerStorePath: string; attemptRecord: ApplicationAttemptRecord; successRecord?: ApplicationSuccessRecord; failureRecord?: FailureRecord }> {
   const ledger = await loadApplicationLedger(storePath);
   const answerSummary = summarizeAnswerPlan(params.answerPlan);
+  const fieldsById = new Map(params.extractedForm.fields.map((field) => [field.field_id, field]));
 
   const attemptRecord: ApplicationAttemptRecord = {
     attempt_id: buildStableId(
@@ -100,6 +123,29 @@ export async function recordExecutionOutcome(
     };
     ledger.failures.push(failureRecord);
   }
+
+  const clarificationItems: ClarificationItemRecord[] = answerSummary
+    .filter((answer) => answer.provenance === 'user_clarification_required')
+    .map((answer) => {
+      const field = fieldsById.get(answer.field_id);
+      return {
+        clarification_id: buildStableId('clarification', `${attemptRecord.attempt_id}:${answer.field_id}`),
+        attempt_id: attemptRecord.attempt_id,
+        job_id: attemptRecord.job_id,
+        application_url: attemptRecord.application_url,
+        ats: attemptRecord.ats,
+        detected_at: attemptRecord.ended_at,
+        field_id: answer.field_id,
+        question_label: field?.label ?? null,
+        answer_type: answer.answer_type,
+        provenance: 'user_clarification_required',
+        confidence: answer.confidence,
+        rationale_short: answer.rationale_short,
+        resolved: false
+      };
+    });
+
+  ledger.clarifications.push(...clarificationItems);
 
   const ledgerStorePath = await writeApplicationLedger(ledger, storePath);
 

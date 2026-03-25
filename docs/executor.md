@@ -66,4 +66,5 @@ The ledger stores:
 - execution attempts
 - successful applications
 - failed attempts
-- answer summaries derived from the validated answer plan
+- answer summaries with provenance classes
+- unresolved clarification items for future user input

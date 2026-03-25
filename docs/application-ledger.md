@@ -12,7 +12,7 @@ The application ledger is the durable record of execution attempts and final out
 The current implementation is intentionally narrow:
 - file-backed JSON store at `artifacts/application-ledger/ledger.json`
 - automatic recording during executor runs
-- attempt, success, and failure records only
+- attempt, success, failure, and clarification records
 
 Run control, retries, and job-pool linkage belong to later milestones.
 
@@ -20,6 +20,7 @@ Run control, retries, and job-pool linkage belong to later milestones.
 - `attempts`
 - `successes`
 - `failures`
+- `clarifications`
 
 Each record links back to:
 - extracted form artifact
@@ -27,11 +28,17 @@ Each record links back to:
 - execution result artifact
 
 ## Notes
-The current answer provenance recorded in the ledger is derived from the validated answer plan:
-- `field_id`
-- `answer_type`
-- `confidence`
-- `rationale_short`
-- `requires_human_review`
+The current answer provenance model is:
+- `known_profile`
+- `clawdbot_inferred`
+- `user_clarification_required`
 
-Explicit provenance classes such as `explicit_profile` or `clawdbot_inferred` remain future work.
+Clarification records are created when an answer is marked as requiring human review.
+Those records persist the unresolved question so future user clarification can be captured and reused by later runs.
+
+## Internal query surface
+The repository exposes internal ledger operations for:
+- listing attempts
+- listing successful applications
+- listing failures
+- listing unresolved clarification items

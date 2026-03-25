@@ -15,7 +15,8 @@ function buildEmptyLedger(): ApplicationLedgerStore {
     updated_at: nowIso(),
     attempts: [],
     successes: [],
-    failures: []
+    failures: [],
+    clarifications: []
   };
 }
 
@@ -30,7 +31,8 @@ export async function loadApplicationLedger(storePath = DEFAULT_APPLICATION_LEDG
       updated_at: parsed.updated_at ?? nowIso(),
       attempts: Array.isArray(parsed.attempts) ? parsed.attempts : [],
       successes: Array.isArray(parsed.successes) ? parsed.successes : [],
-      failures: Array.isArray(parsed.failures) ? parsed.failures : []
+      failures: Array.isArray(parsed.failures) ? parsed.failures : [],
+      clarifications: Array.isArray(parsed.clarifications) ? parsed.clarifications : []
     };
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
@@ -51,7 +53,8 @@ export async function writeApplicationLedger(store: ApplicationLedgerStore, stor
     updated_at: nowIso(),
     attempts: store.attempts,
     successes: store.successes,
-    failures: store.failures
+    failures: store.failures,
+    clarifications: store.clarifications
   };
 
   await writeFile(tempPath, `${JSON.stringify(nextStore, null, 2)}\n`, 'utf-8');
