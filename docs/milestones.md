@@ -144,22 +144,23 @@ Required outcomes:
 - answer provenance is persisted
 - artifact references are linked from durable records
 
-Status: `Partially Complete`
+Status: `Complete`
 
 Completed:
 - durable attempt records exist
 - durable success and failure records exist
 - artifact references are linked from ledger records
-
-Remaining:
-- explicit provenance classes are not yet persisted
-- unresolved uncertainty records are not yet stored as first-class ledger entities
+- provenance classes are persisted
+- unresolved clarification items are stored as first-class ledger entities
+- ledger inspection operations exist
 
 Evidence:
 - [application-ledger/index.ts](/home/shawn/Documents/auto-apply/application-ledger/index.ts)
 - [application-ledger/recordExecutionOutcome.ts](/home/shawn/Documents/auto-apply/application-ledger/recordExecutionOutcome.ts)
+- [tools/ledger-cli.ts](/home/shawn/Documents/auto-apply/tools/ledger-cli.ts)
 - [docs/application-ledger.md](/home/shawn/Documents/auto-apply/docs/application-ledger.md)
 - [tests/application-ledger.spec.ts](/home/shawn/Documents/auto-apply/tests/application-ledger.spec.ts)
+- [tests/ledger-cli.spec.ts](/home/shawn/Documents/auto-apply/tests/ledger-cli.spec.ts)
 
 ## M6: Run Controller and Strategic Retries
 Objective: process postings from the pool until the target number of successful applications has been reached or the pool is exhausted.
@@ -235,7 +236,7 @@ Current gap:
 | M2 | Deterministic Single-Job Runtime | Complete |
 | M3 | Unified Tooling and Pipeline Invocation | Complete |
 | M4 | Job Pool and Ingestion Layer | Complete |
-| M5 | Application Ledger and Provenance | Partially Complete |
+| M5 | Application Ledger and Provenance | Complete |
 | M6 | Run Controller and Strategic Retries | Not Started |
 | M7 | Clawdbot Reasoning Participation | Not Started |
 | M8 | Published Package and OpenClaw Skill Surface | Not Started |
@@ -247,6 +248,6 @@ The repository has already cleared the hardest foundational engineering work for
 Relative to the autonomous system design, the project now has:
 - a complete deterministic runtime
 - a durable job pool
-- a first ledger slice for execution outcomes
+- a complete first-pass ledger layer with provenance and clarification tracking
 
 The next milestone boundary is `M6`. That is the point where the repository stops being a collection of durable subsystems and becomes a pool-backed autonomous execution system.

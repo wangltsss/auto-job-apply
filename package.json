@@ -19,6 +19,7 @@
     "tool:answer-plan": "tsx tools/answer-plan-cli.ts",
     "tool:execute": "tsx tools/execute-cli.ts",
     "tool:job-pool": "tsx tools/job-pool-cli.ts",
+    "tool:ledger": "tsx tools/ledger-cli.ts",
     "tool:pipeline": "tsx tools/pipeline-cli.ts"
   },
   "dependencies": {

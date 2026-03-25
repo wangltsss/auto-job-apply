@@ -15,6 +15,7 @@ The skill surface includes:
 - answer-plan generation operations
 - deterministic execution operations
 - job-pool operations
+- ledger operations
 - pipeline operations
 
 ## Internal command surface
