@@ -184,6 +184,15 @@ They are not the package API itself.
 
 The package API exists above those commands as the programmatic contract for external consumers.
 
+## Relationship To The Skill Adapter
+The skill adapter is the executable bridge that maps OpenClaw-side skill calls onto this package API.
+
+The adapter is implemented by:
+- [skill-adapter/index.ts](/home/shawn/Documents/auto-apply/skill-adapter/index.ts)
+- [tools/skill-cli.ts](/home/shawn/Documents/auto-apply/tools/skill-cli.ts)
+
+The package API remains the stable programmatic layer beneath that adapter.
+
 ## Relationship To Playwright MCP
 Playwright MCP provides browser-level MCP transport.
 

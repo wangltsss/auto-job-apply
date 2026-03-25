@@ -35,6 +35,7 @@ The user-facing integration model is:
 The local `tool:*` commands are implementation details of the skill runtime and MCP surface. They are not the primary user interface.
 
 The repository now also exposes a stable package-facing root export at [index.ts](/home/shawn/Documents/auto-apply/index.ts) for programmatic use.
+The repository also exposes a skill-facing adapter command for OpenClaw-side operation discovery and invocation.
 
 ## Contracts
 - Extracted form schema: `playwright/schemas/form.schema.json`
@@ -49,6 +50,7 @@ The repository now also exposes a stable package-facing root export at [index.ts
 - OpenClaw/runtime duty boundary: `docs/openclaw-runtime-contract.md`
 - Package API: `docs/package-api.md`
 - OpenClaw skill contract: `docs/skill-contract.md`
+- Integration gaps: `docs/integration-gaps.md`
 - Application ledger: `docs/application-ledger.md`
 - Incident manager: `docs/incident-manager.md`
 - Deployment: `docs/deployment.md`

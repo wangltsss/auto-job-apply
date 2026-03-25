@@ -234,6 +234,8 @@ Current gap:
 ## Current Assessment
 The repository has already cleared the hardest foundational engineering work for deterministic automation. It is no longer a prototype scraper; it is a functioning single-job execution core with contracts, orchestration, and tests.
 
+Post-milestone integration gaps and their current resolution state are tracked in [integration-gaps.md](/home/shawn/Documents/auto-apply/docs/integration-gaps.md).
+
 Relative to the autonomous system design, the project now has:
 - a complete deterministic runtime
 - a durable job pool

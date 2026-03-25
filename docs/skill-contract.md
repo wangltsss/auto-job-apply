@@ -18,6 +18,7 @@ The skill contract exists to define:
 The skill surface exposed to OpenClaw is application-specific.
 
 It is responsible for:
+- exposing machine-readable operation discovery
 - accepting job postings into the job pool
 - returning job state
 - starting autonomous application runs
@@ -31,6 +32,20 @@ It is not responsible for:
 - giving OpenClaw low-level selector or click control
 
 ## Skill Operations
+
+### `describe_operations`
+Returns the machine-readable operation list exposed by the skill adapter.
+
+Input:
+- no input object
+
+Output:
+- stable operation names
+- operation summaries
+
+OpenClaw usage:
+- discover the current repository skill surface
+- validate adapter wiring before issuing state-changing calls
 
 ### `enqueue_posting`
 Adds one or more postings to the repository job pool.
@@ -188,6 +203,15 @@ The repository is expected to stop processing when:
 - deterministic execution fails terminally
 - the run target has been reached
 - the pool is exhausted
+
+## Adapter Surface
+The repository exposes the skill contract through a concrete adapter command.
+
+The adapter supports:
+- `describe`
+- `call --operation <name>`
+
+The adapter is the repository-side bridge that host-specific OpenClaw registration points at.
 
 ## Completion Criteria
 The skill contract is complete when:

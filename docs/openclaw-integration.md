@@ -26,6 +26,7 @@ The skill surface includes:
 - ledger operations
 - pipeline operations
 - run-control operations
+- skill-adapter discovery and invocation operations
 
 Playwright MCP is not a replacement for this repository.
 It supplies browser-level MCP transport, while this repository remains responsible for:
@@ -48,6 +49,8 @@ Those commands are internal runtime entrypoints rather than the primary user int
 - `npm run tool:pipeline -- --url <job_url> [--mode scrape|scrape-answer-plan|full] [--storage-state <path>] [--headed] [--mock-response <path>] [--mock-execution]`
 - `npm run tool:run -- start-run --target-success-count <n> [--job-pool-path <path>] [--run-store-path <path>] [--profile <path>] [--mock-response <path>] [--mock-execution]`
 - `npm run tool:run -- query-run [--run-id <id>] [--status active|completed|exhausted] [--limit <n>] [--run-store-path <path>]`
+- `npm run tool:skill -- describe`
+- `npm run tool:skill -- call --operation <name> [--input-file <path> | --input-json <json>]`
 
 ## Stdout contract
 - Success: JSON object written to stdout with `ok: true`, `stage`, `status`, `artifact_paths`, and `result`.
@@ -67,6 +70,8 @@ The first stable run-level operations now available for skill/MCP mapping are:
 - query a job by `job_id`
 - start a run by target success count
 - query a run by `run_id` or filtered run status
+- describe skill operations
+- invoke one skill operation through the adapter command
 
 ## Before autonomous submit
 - Keep `--submit` explicit and gated.
