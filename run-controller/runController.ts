@@ -79,27 +79,30 @@ export async function runController(
       await persist();
 
     while (runRecord.success_count < runRecord.target_success_count) {
+      const loopNow = now();
       const blockedHosts = await getActiveIncidentHosts(options.incidentStorePath);
       const claimOut = await claimNextJobExcludingHosts(runRecord.run_id, blockedHosts, options.jobPoolPath);
       if (!claimOut.claimed) {
         const jobPool = await loadJobPoolStore(options.jobPoolPath);
         const activeIncidents = await getActiveIncidents(options.incidentStorePath);
-        const nextRetryAt = jobPool.jobs
-          .filter((job) => job.status === 'failed_retryable' && job.claimed_by_run_id === null && job.next_attempt_at)
-          .map((job) => job.next_attempt_at as string)
-          .sort()[0] ?? null;
-        const nextIncidentResumeAt = activeIncidents.map((incident) => incident.cooldown_until).sort()[0] ?? null;
 
-        const nextResumeAt = [nextRetryAt, nextIncidentResumeAt].filter(Boolean).sort()[0] ?? null;
+        const futureCandidates = [
+          ...jobPool.jobs
+            .filter((job) => job.status === 'failed_retryable' && job.claimed_by_run_id === null && job.next_attempt_at)
+            .map((job) => job.next_attempt_at as string),
+          ...activeIncidents.map((incident) => incident.cooldown_until)
+        ].filter((candidate) => new Date(candidate).getTime() > new Date(loopNow).getTime());
+
+        const nextResumeAt = futureCandidates.sort()[0] ?? null;
 
         if (!nextResumeAt) {
           runRecord.status = 'exhausted';
-          runRecord.ended_at = now();
+          runRecord.ended_at = loopNow;
           await persist();
           return { runRecord, runStorePath };
         }
 
-        const waitMs = Math.max(0, new Date(nextResumeAt).getTime() - new Date(now()).getTime());
+        const waitMs = Math.max(1, new Date(nextResumeAt).getTime() - new Date(loopNow).getTime());
         runRecord.notes.push(`Waiting ${waitMs}ms for next resume window at ${nextResumeAt}.`);
         await persist();
         await sleep(waitMs);
