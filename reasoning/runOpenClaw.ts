@@ -9,9 +9,11 @@ export interface OpenClawInvocation {
 }
 
 function resolveDefaultRouting(options: OpenClawRunnerOptions): string[] {
-  const implicitAgentId =
-    process.env.OPENCLAW_AGENT_ID ?? process.env.OPENCLAW_AGENT ?? process.env.OPENCLAW_RUNTIME_AGENT ?? 'main';
-  const agent = options.agent ?? implicitAgentId;
+  const agent =
+    options.agent ??
+    process.env.OPENCLAW_AGENT_ID ??
+    process.env.OPENCLAW_AGENT ??
+    process.env.OPENCLAW_RUNTIME_AGENT;
   if (agent) {
     return ['--agent', agent];
   }
@@ -28,13 +30,17 @@ function resolveDefaultRouting(options: OpenClawRunnerOptions): string[] {
 
   throw new ReasoningBridgeError(
     'openclaw_invocation_failure',
-    'OpenClaw routing is missing. Set OPENCLAW_AGENT_ID or pass openClaw.agent.',
+    'OpenClaw routing is missing. Set OPENCLAW_AGENT_ID to a dedicated agent such as autoapply or pass openClaw.agent.',
     {
       command: options.command ?? 'openclaw',
       args: options.args ?? ['agent', '--local', '--message', '<prompt>'],
+      failure_category: 'data',
+      failure_reason: 'openclaw_routing_missing',
       routing_sources_checked: [
         'options.agent',
         'OPENCLAW_AGENT_ID',
+        'OPENCLAW_AGENT',
+        'OPENCLAW_RUNTIME_AGENT',
         'options.sessionId',
         'OPENCLAW_SESSION_ID',
         'options.to',
@@ -62,6 +68,30 @@ export function buildOpenClawInvocation(prompt: string, options: OpenClawRunnerO
     args: ['agent', '--local', ...routingArgs, '--message', prompt],
     stdinPrompt: false
   };
+}
+
+export function buildOpenClawFailureDetails(
+  command: string,
+  args: string[],
+  exitCode: number,
+  stderr: string,
+  stdout: string
+): Record<string, unknown> {
+  const details: Record<string, unknown> = {
+    command,
+    args,
+    exitCode,
+    stderr,
+    stdout
+  };
+
+  if (stderr.includes('session file locked') || stderr.includes('.jsonl.lock')) {
+    details.lock_contention = true;
+    details.failure_category = 'session';
+    details.failure_reason = 'openclaw_session_locked';
+  }
+
+  return details;
 }
 
 export async function runOpenClaw(prompt: string, options: OpenClawRunnerOptions = {}): Promise<OpenClawRunResult> {
@@ -113,13 +143,11 @@ export async function runOpenClaw(prompt: string, options: OpenClawRunnerOptions
       const exitCode = code ?? -1;
       if (exitCode !== 0) {
         reject(
-          new ReasoningBridgeError('openclaw_invocation_failure', 'OpenClaw returned non-zero exit code', {
-            command,
-            args,
-            exitCode,
-            stderr,
-            stdout
-          })
+          new ReasoningBridgeError(
+            'openclaw_invocation_failure',
+            'OpenClaw returned non-zero exit code',
+            buildOpenClawFailureDetails(command, args, exitCode, stderr, stdout)
+          )
         );
         return;
       }

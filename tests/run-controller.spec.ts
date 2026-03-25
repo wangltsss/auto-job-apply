@@ -4,7 +4,39 @@ import { join } from 'node:path';
 import { expect, test } from '@playwright/test';
 import { listIncidents } from '../incident-manager/index.js';
 import { ingestJobs, loadJobPoolStore } from '../job-pool/index.js';
+import { classifyPipelineFailure } from '../run-controller/failurePolicy.js';
 import { runController } from '../run-controller/index.js';
+
+test('classifyPipelineFailure treats OpenClaw lock contention as non-retryable session failure', () => {
+  expect(
+    classifyPipelineFailure({
+      started_at: '2026-03-25T00:00:00.000Z',
+      ended_at: '2026-03-25T00:00:01.000Z',
+      job_id: 'job_123',
+      input_url: 'https://jobs.example.test/apply/123',
+      stages_run: ['scrape', 'answer_plan'],
+      scrape_artifact_path: '/tmp/form.json',
+      answer_plan_artifact_path: null,
+      answer_plan_status: null,
+      execution_result_artifact_path: null,
+      final_status: 'error',
+      failure_stage: 'answer_plan',
+      failure_code: 'openclaw_invocation_failure',
+      notes: [
+        'openclaw_invocation_failure: OpenClaw returned non-zero exit code',
+        JSON.stringify({
+          lock_contention: true,
+          failure_category: 'session',
+          failure_reason: 'openclaw_session_locked',
+          stderr: 'session file locked'
+        })
+      ]
+    })
+  ).toEqual({
+    category: 'session',
+    retryable: false
+  });
+});
 
 test('runController retries a retryable failure and stops when target success count is reached', async () => {
   const tempDir = await mkdtemp(join(tmpdir(), 'run-controller-'));

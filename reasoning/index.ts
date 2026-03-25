@@ -79,7 +79,7 @@ export { buildReasoningInput, DEFAULT_POLICY_FLAGS, readExtractedFormArtifact } 
 export { enforceAnswerPlanPolicy } from './enforceAnswerPlanPolicy.js';
 export { buildOpenClawPrompt } from './promptTemplate.js';
 export { parseAndValidateAnswerPlan } from './parseAnswerPlan.js';
-export { buildOpenClawInvocation, runOpenClaw } from './runOpenClaw.js';
+export { buildOpenClawFailureDetails, buildOpenClawInvocation, runOpenClaw } from './runOpenClaw.js';
 export { writeAnswerPlanArtifact } from './writeAnswerPlanArtifact.js';
 export { ReasoningBridgeError } from './errors.js';
 export type {

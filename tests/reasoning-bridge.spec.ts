@@ -1,20 +1,20 @@
 import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { expect, test } from '@playwright/test';
-import { buildOpenClawInvocation } from '../reasoning/runOpenClaw.js';
+import { buildOpenClawFailureDetails, buildOpenClawInvocation } from '../reasoning/runOpenClaw.js';
 import { buildReasoningInput, readExtractedFormArtifact } from '../reasoning/buildReasoningInput.js';
 import { enforceAnswerPlanPolicy } from '../reasoning/enforceAnswerPlanPolicy.js';
 import { ReasoningBridgeError } from '../reasoning/errors.js';
 import { parseAndValidateAnswerPlan } from '../reasoning/parseAnswerPlan.js';
 
-test('buildOpenClawInvocation defaults to agent routing when OPENCLAW_AGENT_ID is set', () => {
+test('buildOpenClawInvocation uses dedicated OPENCLAW_AGENT_ID routing when set', () => {
   const previous = process.env.OPENCLAW_AGENT_ID;
-  process.env.OPENCLAW_AGENT_ID = 'agent_main';
+  process.env.OPENCLAW_AGENT_ID = 'autoapply';
 
   try {
     expect(buildOpenClawInvocation('hello')).toEqual({
       command: 'openclaw',
-      args: ['agent', '--local', '--agent', 'agent_main', '--message', 'hello'],
+      args: ['agent', '--local', '--agent', 'autoapply', '--message', 'hello'],
       stdinPrompt: false
     });
   } finally {
@@ -28,7 +28,7 @@ test('buildOpenClawInvocation defaults to agent routing when OPENCLAW_AGENT_ID i
 
 test('buildOpenClawInvocation prefers explicit routing options over environment fallbacks', () => {
   const previousAgent = process.env.OPENCLAW_AGENT_ID;
-  process.env.OPENCLAW_AGENT_ID = 'agent_env';
+  process.env.OPENCLAW_AGENT_ID = 'autoapply';
 
   try {
     expect(
@@ -47,7 +47,7 @@ test('buildOpenClawInvocation prefers explicit routing options over environment 
       })
     ).toEqual({
       command: 'openclaw',
-      args: ['agent', '--local', '--agent', 'agent_env', '--message', 'hello'],
+      args: ['agent', '--local', '--agent', 'autoapply', '--message', 'hello'],
       stdinPrompt: false
     });
   } finally {
@@ -172,7 +172,7 @@ test('buildOpenClawInvocation supports explicit sessionId and to routing options
 
 test('buildOpenClawInvocation falls back to current runtime agent when routing is missing', () => {
   const previousAgent = process.env.OPENCLAW_AGENT_ID;
-  const previousAgentAlias = process.env.OPENCLAW_AGENT;
+  const previousAgentLegacy = process.env.OPENCLAW_AGENT;
   const previousRuntimeAgent = process.env.OPENCLAW_RUNTIME_AGENT;
   const previousSession = process.env.OPENCLAW_SESSION_ID;
   const previousTo = process.env.OPENCLAW_TO;
@@ -183,11 +183,15 @@ test('buildOpenClawInvocation falls back to current runtime agent when routing i
   delete process.env.OPENCLAW_TO;
 
   try {
-    expect(buildOpenClawInvocation('hello')).toEqual({
-      command: 'openclaw',
-      args: ['agent', '--local', '--agent', 'main', '--message', 'hello'],
-      stdinPrompt: false
-    });
+    expect(() => buildOpenClawInvocation('hello')).toThrow(ReasoningBridgeError);
+
+    try {
+      buildOpenClawInvocation('hello');
+    } catch (error) {
+      expect((error as ReasoningBridgeError).code).toBe('openclaw_invocation_failure');
+      expect((error as ReasoningBridgeError).message).toContain('routing is missing');
+      expect((error as ReasoningBridgeError).message).toContain('autoapply');
+    }
   } finally {
     if (previousAgent === undefined) {
       delete process.env.OPENCLAW_AGENT_ID;
@@ -195,10 +199,10 @@ test('buildOpenClawInvocation falls back to current runtime agent when routing i
       process.env.OPENCLAW_AGENT_ID = previousAgent;
     }
 
-    if (previousAgentAlias === undefined) {
+    if (previousAgentLegacy === undefined) {
       delete process.env.OPENCLAW_AGENT;
     } else {
-      process.env.OPENCLAW_AGENT = previousAgentAlias;
+      process.env.OPENCLAW_AGENT = previousAgentLegacy;
     }
 
     if (previousRuntimeAgent === undefined) {
@@ -219,6 +223,27 @@ test('buildOpenClawInvocation falls back to current runtime agent when routing i
       process.env.OPENCLAW_TO = previousTo;
     }
   }
+});
+
+test('buildOpenClawFailureDetails marks lock contention as session failure', () => {
+  expect(
+    buildOpenClawFailureDetails(
+      'openclaw',
+      ['agent', '--local', '--agent', 'autoapply', '--message', 'hello'],
+      1,
+      'session file locked at /agents/autoapply/sessions/abc.jsonl.lock',
+      ''
+    )
+  ).toEqual({
+    command: 'openclaw',
+    args: ['agent', '--local', '--agent', 'autoapply', '--message', 'hello'],
+    exitCode: 1,
+    stderr: 'session file locked at /agents/autoapply/sessions/abc.jsonl.lock',
+    stdout: '',
+    lock_contention: true,
+    failure_category: 'session',
+    failure_reason: 'openclaw_session_locked'
+  });
 });
 
 test('buildOpenClawInvocation supports prompt placeholders and stdin override', () => {

@@ -40,6 +40,31 @@ export function classifyPipelineFailure(artifact: PipelineRunArtifact): FailureD
     return { category: 'terminal', retryable: false };
   }
 
+  if (artifact.failure_code === 'openclaw_invocation_failure') {
+    for (const note of artifact.notes) {
+      if (!note.startsWith('{')) {
+        continue;
+      }
+
+      try {
+        const details = JSON.parse(note) as Record<string, unknown>;
+        if (
+          details.lock_contention === true ||
+          details.failure_reason === 'openclaw_session_locked' ||
+          details.failure_category === 'session'
+        ) {
+          return { category: 'session', retryable: false };
+        }
+
+        if (details.failure_reason === 'openclaw_routing_missing' || details.failure_category === 'data') {
+          return { category: 'data', retryable: false };
+        }
+      } catch {
+        // Ignore non-JSON note lines.
+      }
+    }
+  }
+
   return FAILURE_DECISIONS[artifact.failure_code] ?? { category: 'terminal', retryable: false };
 }
 
