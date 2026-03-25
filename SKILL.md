@@ -7,7 +7,7 @@ metadata: {"openclaw":{"requires":{"bins":["node","npm"]},"emoji":"🧰","os":["
 
 # Auto Apply Runtime
 
-This skill exposes the repository at `{baseDir}` as an OpenClaw job-application runtime.
+This skill exposes this repository as an OpenClaw job-application runtime.
 
 ## Purpose
 - ingest eligible job postings into the durable job pool
@@ -48,7 +48,7 @@ The repository is responsible for:
 - ledger and incident persistence
 
 ## Adapter Entry Point
-Use the local skill adapter command from `{baseDir}`:
+Use the local skill adapter command from the repository root:
 
 ```bash
 npm run tool:skill -- describe
