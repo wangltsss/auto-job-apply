@@ -36,6 +36,7 @@ The local `tool:*` commands are implementation details of the skill runtime and 
 
 The repository now also exposes a stable package-facing root export at [index.ts](/home/shawn/Documents/auto-apply/index.ts) for programmatic use.
 The repository also exposes a skill-facing adapter command for OpenClaw-side operation discovery and invocation.
+The preferred OpenClaw-side shortcuts are `/ingest` and `/apply`.
 
 ## Contracts
 - Extracted form schema: `playwright/schemas/form.schema.json`

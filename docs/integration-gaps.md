@@ -14,6 +14,7 @@ Gap:
 Resolution:
 - the repository now provides a machine-readable skill adapter command
 - the adapter exposes operation discovery and operation invocation over a stable command surface
+- the adapter exposes preferred slash-command affordances for common actions
 
 Primary artifacts:
 - [tools/skill-cli.ts](/home/shawn/Documents/auto-apply/tools/skill-cli.ts)

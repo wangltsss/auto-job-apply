@@ -47,6 +47,37 @@ OpenClaw usage:
 - discover the current repository skill surface
 - validate adapter wiring before issuing state-changing calls
 
+### `/ingest`
+Preferred OpenClaw shortcut for adding one or more postings to the durable job pool.
+
+Input:
+- `url` or `urls`
+- optional metadata such as `title`, `company`, and `location`
+- optional `storePath`
+
+Output:
+- inserted count
+- duplicate count
+- normalized job identities
+
+OpenClaw usage:
+- quick manual job intake from a shared posting URL
+- lower-friction intake when only a small amount of metadata is known
+
+### `/apply`
+Preferred OpenClaw shortcut for starting an autonomous run.
+
+Input:
+- `count` or `target_success_count`
+- optional runtime and store overrides
+
+Output:
+- run record
+- run-store path
+
+OpenClaw usage:
+- start a bounded application session with minimal command overhead
+
 ### `enqueue_posting`
 Adds one or more postings to the repository job pool.
 
@@ -212,6 +243,7 @@ The adapter supports:
 - `call --operation <name>`
 
 The adapter is the repository-side bridge that host-specific OpenClaw registration points at.
+The preferred OpenClaw-facing operation names are `/ingest` and `/apply`.
 
 ## Completion Criteria
 The skill contract is complete when:

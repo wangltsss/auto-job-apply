@@ -19,6 +19,7 @@ The formal duty boundary between OpenClaw and the runtime is defined in:
 - [docs/incident-manager.md](/home/shawn/Documents/auto-apply/docs/incident-manager.md)
 
 The skill surface includes:
+- preferred slash-command affordances for common actions
 - scraping operations
 - answer-plan generation operations
 - deterministic execution operations
@@ -66,12 +67,18 @@ From the user perspective, the expected flow is:
 - rely on OpenClaw to make eligibility and anti-bot go/no-go decisions before deterministic execution proceeds
 
 The first stable run-level operations now available for skill/MCP mapping are:
+- `/ingest`
+- `/apply`
 - enqueue posting into the job pool
 - query a job by `job_id`
 - start a run by target success count
 - query a run by `run_id` or filtered run status
 - describe skill operations
 - invoke one skill operation through the adapter command
+
+The preferred OpenClaw-side shortcuts are:
+- `/ingest`
+- `/apply`
 
 ## Before autonomous submit
 - Keep `--submit` explicit and gated.
