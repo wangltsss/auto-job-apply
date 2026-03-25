@@ -1,5 +1,6 @@
 export { claimNextJob } from './claimNextJob.js';
 export { finalizeJobAttempt } from './finalizeJobAttempt.js';
+export { getJob } from './getJob.js';
 export { ingestJobs } from './ingestJobs.js';
 export { listJobs } from './listJobs.js';
 export { normalizeJobPosting } from './normalizeJobPosting.js';

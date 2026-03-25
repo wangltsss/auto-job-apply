@@ -15,11 +15,14 @@
     "types": ["node"]
   },
   "include": [
+    "index.ts",
+    "application-ledger/**/*.ts",
     "playwright/**/*.ts",
     "job-pool/**/*.ts",
     "reasoning/**/*.ts",
     "executor/**/*.ts",
     "orchestration/**/*.ts",
+    "run-controller/**/*.ts",
     "tools/**/*.ts",
     "examples/**/*.ts",
     "tests/**/*.ts"

@@ -4,6 +4,10 @@
   "private": true,
   "description": "Deterministic Playwright-based scraper for ATS application forms",
   "type": "module",
+  "main": "./dist/index.js",
+  "exports": {
+    ".": "./dist/index.js"
+  },
   "scripts": {
     "setup:device": "bash scripts/bootstrap-device.sh",
     "doctor": "bash scripts/doctor.sh",
@@ -20,7 +24,8 @@
     "tool:execute": "tsx tools/execute-cli.ts",
     "tool:job-pool": "tsx tools/job-pool-cli.ts",
     "tool:ledger": "tsx tools/ledger-cli.ts",
-    "tool:pipeline": "tsx tools/pipeline-cli.ts"
+    "tool:pipeline": "tsx tools/pipeline-cli.ts",
+    "tool:run": "tsx tools/run-cli.ts"
   },
   "dependencies": {
     "playwright": "^1.52.0"
