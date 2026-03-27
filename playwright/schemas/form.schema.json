@@ -21,7 +21,7 @@
       "properties": {
         "status": { "const": "success" },
         "url": { "type": "string", "format": "uri" },
-        "ats": { "enum": ["greenhouse", "linkedin_easy_apply", "unknown"] },
+        "ats": { "enum": ["greenhouse", "workday", "unknown"] },
         "page_title": { "type": "string" },
         "current_step": { "type": ["string", "null"] },
         "form_ready": { "type": "boolean" },
@@ -151,7 +151,7 @@
         "status": { "enum": ["blocked", "error"] },
         "reason": { "type": "string" },
         "current_url": { "type": "string", "format": "uri" },
-        "ats_guess": { "enum": ["greenhouse", "linkedin_easy_apply", "unknown"] },
+        "ats_guess": { "enum": ["greenhouse", "workday", "unknown"] },
         "screenshot_path": { "type": ["string", "null"] },
         "trace_path": { "type": ["string", "null"] },
         "extracted_at": { "type": "string", "format": "date-time" }

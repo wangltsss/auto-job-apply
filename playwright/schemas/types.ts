@@ -1,4 +1,4 @@
-export type AtsType = 'greenhouse' | 'linkedin_easy_apply' | 'unknown';
+export type AtsType = 'greenhouse' | 'workday' | 'unknown';
 
 export type FieldType =
   | 'text'

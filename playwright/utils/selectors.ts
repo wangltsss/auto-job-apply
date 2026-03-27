@@ -1,8 +1,8 @@
 export const STEP_HINT_SELECTORS: string[] = [
   '[aria-current="step"]',
   '[data-test*="progress"]',
+  '[data-automation-id*="progress"]',
   '.application-progress',
-  '.jobs-easy-apply-content__step',
   '.progress-bar'
 ];
 
@@ -10,7 +10,6 @@ export const HELP_TEXT_SELECTORS: string[] = [
   '.help-text',
   '.description',
   '.form-note',
-  '.artdeco-inline-feedback__message',
   '[id*="help"]'
 ];
 
@@ -19,7 +18,7 @@ export const VALIDATION_SELECTORS: string[] = [
   '.errors',
   '.invalid-feedback',
   '[aria-live="assertive"]',
-  '.artdeco-inline-feedback--error'
+  '[data-automation-id*="error"]'
 ];
 
 export const BLOCKED_TEXT_PATTERNS: RegExp[] = [
@@ -34,6 +33,6 @@ export const BLOCKED_TEXT_PATTERNS: RegExp[] = [
 export const PRIMARY_FORM_SELECTORS: string[] = [
   'form',
   '[role="form"]',
-  '.jobs-easy-apply-content',
+  '[data-automation-id="jobApplication"]',
   '#application_form'
 ];

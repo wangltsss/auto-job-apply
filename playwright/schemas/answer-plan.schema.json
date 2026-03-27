@@ -22,7 +22,7 @@
       "type": "string"
     },
     "ats": {
-      "enum": ["greenhouse", "linkedin_easy_apply", "unknown"]
+      "enum": ["greenhouse", "workday", "unknown"]
     },
     "application_url": {
       "type": "string",

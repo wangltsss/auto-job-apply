@@ -439,7 +439,10 @@ export class GenericFormExtractor implements FormExtractor {
       const button = buttons.nth(i);
       const text = await button.innerText().catch(() => '');
       const value = await button.getAttribute('value').catch(() => '');
-      const label = cleanText(text || value || '');
+      const ariaLabel = await button.getAttribute('aria-label').catch(() => '');
+      const title = await button.getAttribute('title').catch(() => '');
+      const automationId = await button.getAttribute('data-automation-id').catch(() => '');
+      const label = cleanText(text || value || ariaLabel || title || automationId || '');
       if (!isSubmitLike(label)) {
         continue;
       }

@@ -22,12 +22,5 @@ export async function detectBlockedState(page: Page, ats: AtsType): Promise<Bloc
     return { blocked: true, reason: 'Captcha detected on page' };
   }
 
-  if (ats === 'linkedin_easy_apply') {
-    const easyApplyRoot = page.locator('.jobs-easy-apply-content, .jobs-easy-apply-modal').first();
-    if (!(await easyApplyRoot.count())) {
-      return { blocked: true, reason: 'LinkedIn Easy Apply modal not open or unavailable' };
-    }
-  }
-
   return { blocked: false, reason: '' };
 }

@@ -2,11 +2,11 @@ import type { AtsType } from '../schemas/types.js';
 import type { FormExtractor } from './base.js';
 import { GenericFormExtractor } from './genericExtractor.js';
 import { GreenhouseExtractor } from './greenhouseExtractor.js';
-import { LinkedInEasyApplyExtractor } from './linkedInEasyApplyExtractor.js';
+import { WorkdayExtractor } from './workdayExtractor.js';
 
 const extractors: FormExtractor[] = [
   new GreenhouseExtractor(),
-  new LinkedInEasyApplyExtractor(),
+  new WorkdayExtractor(),
   new GenericFormExtractor()
 ];
 

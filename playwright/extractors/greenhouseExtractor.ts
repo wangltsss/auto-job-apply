@@ -34,4 +34,36 @@ export class GreenhouseExtractor extends GenericFormExtractor {
 
     return super.detectCurrentStep(page, container);
   }
+
+  protected override async detectSubmitState(container: Locator): Promise<{ visible: boolean; enabled: boolean }> {
+    const selectors = [
+      '.application--submit button',
+      '.application--buttons button',
+      '.application-footer button',
+      'button[type="submit"]',
+      'input[type="submit"]'
+    ];
+
+    for (const selector of selectors) {
+      const buttons = container.locator(selector);
+      const count = await buttons.count();
+      for (let i = 0; i < count; i += 1) {
+        const button = buttons.nth(i);
+        const text = await button.innerText().catch(() => '');
+        const value = await button.getAttribute('value').catch(() => '');
+        const ariaLabel = await button.getAttribute('aria-label').catch(() => '');
+        const label = `${text} ${value} ${ariaLabel}`.trim().toLowerCase();
+        if (!/(submit|apply|review|next|continue)/i.test(label)) {
+          continue;
+        }
+
+        return {
+          visible: await button.isVisible().catch(() => false),
+          enabled: await button.isEnabled().catch(() => false)
+        };
+      }
+    }
+
+    return super.detectSubmitState(container);
+  }
 }

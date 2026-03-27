@@ -102,7 +102,7 @@ async function buildFailure(
   page: { url(): string; screenshot: (options: { path: string; fullPage: boolean }) => Promise<Buffer> },
   status: Extract<ScrapeStatus, 'blocked' | 'error'>,
   reason: string,
-  atsGuess: 'greenhouse' | 'linkedin_easy_apply' | 'unknown',
+  atsGuess: 'greenhouse' | 'workday' | 'unknown',
   traceEnabled: boolean,
   runtimeDir: string,
   screenshotPath: string | null,
