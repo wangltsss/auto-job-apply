@@ -99,10 +99,11 @@ export class GenericFormExtractor implements FormExtractor {
   }
 
   protected async extractFields(container: Locator): Promise<ExtractedField[]> {
-    const controls = container.locator('input, textarea, select, [role="combobox"]');
+    const controls = container.locator('input:not([role="combobox"]), textarea, select, [role="combobox"]');
     const count = await controls.count();
     const fields: ExtractedField[] = [];
     const seenRadioGroups = new Set<string>();
+    const seenCheckboxGroups = new Set<string>();
 
     for (let i = 0; i < count; i += 1) {
       const control = controls.nth(i);
@@ -135,9 +136,26 @@ export class GenericFormExtractor implements FormExtractor {
         continue;
       }
 
+      if (fieldType === 'checkbox') {
+        const checkboxGroupKey = await this.resolveCheckboxGroupKey(container, snapshot);
+        if (checkboxGroupKey) {
+          if (seenCheckboxGroups.has(checkboxGroupKey)) {
+            continue;
+          }
+          seenCheckboxGroups.add(checkboxGroupKey);
+          fields.push(await this.buildCheckboxGroupField(container, snapshot, checkboxGroupKey, i));
+          continue;
+        }
+      }
+
       if (!snapshot.labelText && !snapshot.ariaLabel && fieldType === 'unknown') {
         continue;
       }
+
+      const optionTexts =
+        fieldType === 'combobox'
+          ? await this.resolveComboboxOptions(control, snapshot)
+          : snapshot.optionTexts;
 
       const baseLabel = cleanText(snapshot.labelText ?? snapshot.ariaLabel ?? snapshot.name ?? snapshot.id ?? 'Unknown field');
       const fileKind = fieldType === 'file'
@@ -183,7 +201,7 @@ export class GenericFormExtractor implements FormExtractor {
         label,
         type: fieldType,
         required: isLikelyRequired(label, snapshot.ariaRequired, snapshot.requiredAttr),
-        options: snapshot.optionTexts,
+        options: optionTexts,
         placeholder: nullIfEmpty(snapshot.placeholder),
         help_text: nullIfEmpty(snapshot.helpText),
         section: nullIfEmpty(snapshot.sectionText),
@@ -196,7 +214,7 @@ export class GenericFormExtractor implements FormExtractor {
         group_id: null,
         group_label: null,
         group_type: 'none',
-        options_deferred: optionsDeferred,
+        options_deferred: shouldMarkOptionsDeferred(fieldType, optionTexts.length),
         file_kind: fileKind,
         sensitivity,
         auto_answer_safe: inferAutoAnswerSafe(sensitivity),
@@ -316,6 +334,93 @@ export class GenericFormExtractor implements FormExtractor {
     };
   }
 
+  protected async buildCheckboxGroupField(
+    container: Locator,
+    firstSnapshot: ControlSnapshot,
+    groupKey: string,
+    index: number
+  ): Promise<ExtractedField> {
+    const checkboxes =
+      firstSnapshot.name
+        ? container.locator(`input[type="checkbox"][name="${cssEscape(firstSnapshot.name)}"]`)
+        : container.locator(`input[type="checkbox"]#${cssEscape(groupKey)}`);
+    const checkboxCount = await checkboxes.count();
+    const options: string[] = [];
+    const selected: string[] = [];
+    let visible = false;
+    let enabled = false;
+
+    for (let i = 0; i < checkboxCount; i += 1) {
+      const checkbox = checkboxes.nth(i);
+      const shot = await this.snapshotControl(checkbox);
+      const label = cleanText(shot.labelText ?? shot.ariaLabel ?? shot.value ?? `Option ${i + 1}`);
+      if (label) {
+        options.push(label);
+      }
+      if (shot.checked && label) {
+        selected.push(label);
+      }
+      visible = visible || (await checkbox.isVisible().catch(() => false));
+      enabled = enabled || (await checkbox.isEnabled().catch(() => false));
+    }
+
+    const label = cleanText(firstSnapshot.groupLabel ?? firstSnapshot.labelText ?? firstSnapshot.ariaLabel ?? firstSnapshot.name ?? 'Checkbox group');
+    const semanticCategory = inferSemanticCategory({
+      label,
+      section: firstSnapshot.sectionText,
+      helpText: firstSnapshot.helpText,
+      nameAttr: firstSnapshot.name,
+      idAttr: firstSnapshot.id,
+      type: 'checkbox'
+    });
+    const sensitivity = inferSensitivity(
+      {
+        label,
+        section: firstSnapshot.sectionText,
+        helpText: firstSnapshot.helpText,
+        nameAttr: firstSnapshot.name,
+        idAttr: firstSnapshot.id,
+        type: 'checkbox'
+      },
+      semanticCategory
+    );
+
+    return {
+      field_id: buildStableFieldId({
+        nameAttr: firstSnapshot.name,
+        idAttr: firstSnapshot.id,
+        label,
+        section: firstSnapshot.sectionText,
+        index
+      }),
+      label,
+      type: 'checkbox',
+      required: isLikelyRequired(label, firstSnapshot.ariaRequired, firstSnapshot.requiredAttr),
+      options,
+      placeholder: null,
+      help_text: nullIfEmpty(firstSnapshot.helpText),
+      section: nullIfEmpty(firstSnapshot.sectionText),
+      current_value: selected,
+      selector_hint: firstSnapshot.name ? `[name="${firstSnapshot.name}"]` : firstSnapshot.selectorHint,
+      visible,
+      enabled,
+      validation_text: nullIfEmpty(firstSnapshot.validationText),
+      semantic_category: semanticCategory,
+      group_id: firstSnapshot.name ?? firstSnapshot.id ?? null,
+      group_label: nullIfEmpty(firstSnapshot.groupLabel ?? label),
+      group_type: 'multi_choice',
+      options_deferred: shouldMarkOptionsDeferred('checkbox', options.length),
+      file_kind: 'unknown',
+      sensitivity,
+      auto_answer_safe: inferAutoAnswerSafe(sensitivity),
+      internal: false,
+      source_tag: 'checkbox_group',
+      name_attr: firstSnapshot.name,
+      id_attr: firstSnapshot.id,
+      aria_label: firstSnapshot.ariaLabel
+    };
+  }
+
   protected async snapshotControl(control: Locator): Promise<ControlSnapshot> {
     return control.evaluate((node, args) => {
       const element = node as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
@@ -429,6 +534,97 @@ export class GenericFormExtractor implements FormExtractor {
         sourceTag
       };
     }, { helpSelectors: HELP_TEXT_SELECTORS, validationSelectors: VALIDATION_SELECTORS });
+  }
+
+  protected async resolveCheckboxGroupKey(container: Locator, snapshot: ControlSnapshot): Promise<string | null> {
+    if (snapshot.typeAttr?.toLowerCase() !== 'checkbox') {
+      return null;
+    }
+
+    if (snapshot.name) {
+      const count = await container.locator(`input[type="checkbox"][name="${cssEscape(snapshot.name)}"]`).count().catch(() => 0);
+      if (count > 1) {
+        return snapshot.name;
+      }
+    }
+
+    if (snapshot.groupLabel && snapshot.id) {
+      return snapshot.id;
+    }
+
+    return null;
+  }
+
+  protected async resolveComboboxOptions(control: Locator, snapshot: ControlSnapshot): Promise<string[]> {
+    if (snapshot.optionTexts.length > 0 || snapshot.role !== 'combobox') {
+      return snapshot.optionTexts;
+    }
+
+    const controlWrapper = control.locator('xpath=ancestor::*[contains(@class, "select__control")][1]').first();
+    if (await controlWrapper.count()) {
+      await controlWrapper.click().catch(() => undefined);
+    } else {
+      await control.click().catch(() => undefined);
+    }
+
+    await control.focus().catch(() => undefined);
+    await control.press('ArrowDown').catch(() => undefined);
+
+    let optionTexts: string[] = [];
+    for (let attempt = 0; attempt < 8; attempt += 1) {
+      optionTexts = await control.evaluate((node) => {
+        const element = node as HTMLInputElement;
+        const controlId = element.id;
+        const explicitListboxId = element.getAttribute('aria-controls');
+        const candidateIds: string[] = [];
+        if (explicitListboxId) {
+          candidateIds.push(explicitListboxId);
+        }
+        if (controlId) {
+          candidateIds.push(`react-select-${controlId}-listbox`);
+        }
+
+        const seen = new Set<string>();
+        const texts: string[] = [];
+
+        for (const listboxId of candidateIds) {
+          const listbox = document.getElementById(listboxId);
+          const options = listbox?.querySelectorAll('[role="option"]') ?? [];
+          for (const option of options) {
+            const cleaned = option.textContent?.trim();
+            if (!cleaned || seen.has(cleaned)) {
+              continue;
+            }
+            seen.add(cleaned);
+            texts.push(cleaned);
+          }
+        }
+
+        if (texts.length === 0 && controlId) {
+          const fallbackOptions = document.querySelectorAll(`[id^="react-select-${controlId}-option-"]`);
+          for (const option of fallbackOptions) {
+            const cleaned = option.textContent?.trim();
+            if (!cleaned || seen.has(cleaned)) {
+              continue;
+            }
+            seen.add(cleaned);
+            texts.push(cleaned);
+          }
+        }
+
+        return texts;
+      }).catch(() => []);
+
+      if (optionTexts.length > 0) {
+        break;
+      }
+
+      await control.page().waitForTimeout(125).catch(() => undefined);
+      await control.press('ArrowDown').catch(() => undefined);
+    }
+
+    await control.press('Escape').catch(() => undefined);
+    return optionTexts;
   }
 
   protected async detectSubmitState(container: Locator): Promise<{ visible: boolean; enabled: boolean }> {
