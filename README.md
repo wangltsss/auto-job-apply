@@ -66,7 +66,6 @@ Unattended runs require a dedicated OpenClaw agent id such as `autoapply`; do no
 - Package API: `docs/package-api.md`
 - OpenClaw skill contract: `docs/skill-contract.md`
 - Skill install script: `scripts/install-openclaw-skill.sh`
-- Integration gaps: `docs/integration-gaps.md`
 - Application ledger: `docs/application-ledger.md`
 - Incident manager: `docs/incident-manager.md`
 - Deployment: `docs/deployment.md`

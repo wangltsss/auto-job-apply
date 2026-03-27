@@ -7,3 +7,4 @@ artifacts/answer-plans/*.json
 artifacts/execution-results/*.json
 artifacts/runtime
 artifacts/
+docs/internal/
