@@ -19,11 +19,15 @@ OpenClaw skill and deterministic runtime for job-application automation, with Pl
 
 ## Quick start
 1. Install this project as an OpenClaw skill in the environment where OpenClaw runs.
-2. Install the repository into the OpenClaw skills directory with `npm run install:openclaw-skill`.
+2. Create a dedicated OpenClaw agent for unattended runs. Suggested name: `autoapply`.
+   Example: `openclaw agents add autoapply --workspace "$HOME/.openclaw/workspace-autoapply" --non-interactive`
+3. Export the dedicated agent id before running autonomous apply flows.
+   Example: `export OPENCLAW_AGENT_ID=autoapply`
+4. Install the repository into the OpenClaw skills directory with `npm run install:openclaw-skill`.
    For a workspace-local install, use `npm run install:openclaw-skill -- --workspace-dir <workspace_path>`.
-3. Register or expose the repository's MCP tool surface to OpenClaw.
-4. In OpenClaw, discover the skill and invoke its job-application operations through the skill interface.
-5. Start with non-submitting or dry-run flows before enabling real submission behavior.
+5. Register or expose the repository's MCP tool surface to OpenClaw.
+6. In OpenClaw, discover the skill and invoke its job-application operations through the skill interface.
+7. Start with non-submitting or dry-run flows before enabling real submission behavior.
 
 ## Mac Mini Local Install
 
@@ -32,6 +36,8 @@ git clone https://github.com/wangltsss/auto-job-apply "$HOME/auto-apply"
 cd "$HOME/auto-apply"
 npm ci
 npm run setup:device
+openclaw agents add autoapply --workspace "$HOME/.openclaw/workspace-autoapply" --non-interactive
+export OPENCLAW_AGENT_ID=autoapply
 npm run install:openclaw-skill
 npm run tool:skill -- describe
 ```
