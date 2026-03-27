@@ -11,7 +11,7 @@ OpenClaw skill and deterministic runtime for job-application automation, with Pl
 
 ## Scope
 - Opens application pages and extracts normalized form data
-- Detects ATS where possible (`greenhouse`, `linkedin_easy_apply`, `unknown`)
+- Detects ATS where possible (`greenhouse`, `workday`, `unknown`)
 - Produces machine-readable JSON artifacts
 - Defines strict `AnswerPlan` schema for LLM/OpenClaw output
 - Deterministically executes validated answer plans

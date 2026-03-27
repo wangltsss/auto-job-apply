@@ -17,7 +17,7 @@
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "playwright test",
     "example:scrape": "tsx examples/scrape-page.ts",
-    "example:scrape:linkedin": "tsx examples/scrape-linkedin-easy-apply.ts",
+    "example:scrape:workday": "tsx examples/scrape-workday.ts",
     "example:answer-plan": "tsx examples/run-answer-plan.ts",
     "example:executor": "tsx examples/run-executor.ts",
     "tool:scrape": "tsx tools/scrape-cli.ts",

@@ -1,8 +1,8 @@
 {
   "status": "quarantine",
   "reason": "Compensation history and relocation fields are ambiguous and high-risk.",
-  "ats": "linkedin_easy_apply",
-  "application_url": "https://www.linkedin.com/jobs/view/123456789",
+  "ats": "workday",
+  "application_url": "https://company.wd5.myworkdayjobs.com/en-US/careers/job/123456",
   "submit_allowed": false,
   "answers": [
     {

@@ -3,14 +3,14 @@
 ## Module boundaries
 - `playwright/schemas/`: shared TypeScript contracts + JSON schema + runtime validators
 - `playwright/ats/`: ATS detection only
-- `playwright/extractors/`: field extraction implementations (`generic`, `greenhouse`, `linkedin_easy_apply`)
+- `playwright/extractors/`: field extraction implementations (`generic`, `greenhouse`, `workday`)
 - `playwright/core/`: browser session and scrape orchestration
 - `playwright/utils/`: text normalization, selector constants, semantic inference, field identity, and artifact writing
 
 ## Runtime flow
 1. `scrapeForm()` launches browser context and opens URL.
 2. ATS is detected via URL + page content heuristics.
-3. Blocked/unusable state is detected (auth, captcha, missing LinkedIn modal).
+3. Blocked/unusable state is detected (auth, captcha, or unsupported access state).
 4. ATS-specific extractor is selected (fallback: generic extractor).
 5. Extracted payload is normalized and saved to `artifacts/forms/*.json`.
 6. On blocked/error states, screenshot + optional trace are captured and returned in structured failure payload.
